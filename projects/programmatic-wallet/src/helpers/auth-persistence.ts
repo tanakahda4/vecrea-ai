@@ -8,7 +8,7 @@ export const CDP_REFRESH_TOKEN_KEY = "cdp_refresh_token";
 
 const getAuthStatePath = (): string => {
   const configDir = process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config");
-  return join(configDir, "programmatic-wallet", "auth-state.json");
+  return join(configDir, "pwal", "auth-state.json");
 };
 
 /**

@@ -17,9 +17,11 @@ export const runForCli = async <T>(
 ): Promise<T> => {
   await restoreAuthState();
   await initializeWithNodeCompat(getConfig());
-  const result = await fn();
-  if (!options.skipPersist) {
-    await persistAuthState();
+  try {
+    return await fn();
+  } finally {
+    if (!options.skipPersist) {
+      await persistAuthState();
+    }
   }
-  return result;
 };

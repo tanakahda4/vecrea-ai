@@ -3,6 +3,12 @@ import { type Address, type PublicClient, createPublicClient, http } from "viem"
 
 const WETH_ADDRESS = "0x4200000000000000000000000000000000000006" as Address;
 
+/** Maps EIP-155 chain IDs to chain names (for x402 network normalization). */
+export const EIP155_TO_CHAIN: Record<string, string> = {
+  "eip155:84532": "base-sepolia",
+  "eip155:8453": "base",
+};
+
 const CHAIN_CONFIG: Record<
   string,
   { chain: typeof base | typeof baseSepolia; usdc: Address; label: string }
@@ -57,3 +63,12 @@ export const getUsdcAddress = (chain: string): Address => {
 };
 
 export const getWethAddress = (): Address => WETH_ADDRESS;
+
+/** Returns viem chain for wallet client (x402 pay). */
+export const getChainForWallet = (chainName: string = "base-sepolia") => {
+  const config =
+    (CHAIN_CONFIG as Record<string, (typeof CHAIN_CONFIG)["base"]>)[
+      chainName.toLowerCase()
+    ] ?? CHAIN_CONFIG["base-sepolia"];
+  return config.chain;
+};
