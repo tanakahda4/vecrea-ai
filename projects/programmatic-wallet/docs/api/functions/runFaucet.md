@@ -8,7 +8,7 @@
 
 > **runFaucet**(): `Promise`\<[`RunFaucetResult`](../type-aliases/RunFaucetResult.md)\>
 
-Defined in: [src/commands/faucet.ts:15](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/faucet.ts#L15)
+Defined in: [src/commands/faucet.ts:15](https://github.com/dentsusoken/vecrea-ai/blob/0eb9a22e94bada7f80d84a403a65048c4f8ff325/projects/programmatic-wallet/src/commands/faucet.ts#L15)
 
 Runs the faucet URL fetch. Pure function - no console output, suitable for SDK usage.
 Returns the faucet URL with address query param if the user is authenticated and has an EVM account.

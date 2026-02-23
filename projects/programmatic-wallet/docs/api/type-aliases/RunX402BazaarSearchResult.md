@@ -8,7 +8,7 @@
 
 > **RunX402BazaarSearchResult** = `object`
 
-Defined in: [src/commands/x402/bazaar.ts:49](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L49)
+Defined in: [src/commands/x402/bazaar.ts:49](https://github.com/dentsusoken/vecrea-ai/blob/0eb9a22e94bada7f80d84a403a65048c4f8ff325/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L49)
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: [src/commands/x402/bazaar.ts:49](https://github.com/dentsusoken/vecr
 
 > **items**: [`DiscoveryResource`](DiscoveryResource.md)[]
 
-Defined in: [src/commands/x402/bazaar.ts:50](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L50)
+Defined in: [src/commands/x402/bazaar.ts:50](https://github.com/dentsusoken/vecrea-ai/blob/0eb9a22e94bada7f80d84a403a65048c4f8ff325/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L50)
 
 ***
 
@@ -24,4 +24,4 @@ Defined in: [src/commands/x402/bazaar.ts:50](https://github.com/dentsusoken/vecr
 
 > **total**: `number`
 
-Defined in: [src/commands/x402/bazaar.ts:51](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L51)
+Defined in: [src/commands/x402/bazaar.ts:51](https://github.com/dentsusoken/vecrea-ai/blob/0eb9a22e94bada7f80d84a403a65048c4f8ff325/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L51)

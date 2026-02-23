@@ -8,7 +8,7 @@
 
 > **RunX402BazaarSearchOptions** = `object`
 
-Defined in: [src/commands/x402/bazaar.ts:42](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L42)
+Defined in: [src/commands/x402/bazaar.ts:42](https://github.com/dentsusoken/vecrea-ai/blob/0eb9a22e94bada7f80d84a403a65048c4f8ff325/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L42)
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: [src/commands/x402/bazaar.ts:42](https://github.com/dentsusoken/vecr
 
 > `optional` **forceRefresh**: `boolean`
 
-Defined in: [src/commands/x402/bazaar.ts:45](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L45)
+Defined in: [src/commands/x402/bazaar.ts:45](https://github.com/dentsusoken/vecrea-ai/blob/0eb9a22e94bada7f80d84a403a65048c4f8ff325/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L45)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/commands/x402/bazaar.ts:45](https://github.com/dentsusoken/vecr
 
 > `optional` **network**: `string`
 
-Defined in: [src/commands/x402/bazaar.ts:46](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L46)
+Defined in: [src/commands/x402/bazaar.ts:46](https://github.com/dentsusoken/vecrea-ai/blob/0eb9a22e94bada7f80d84a403a65048c4f8ff325/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L46)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/commands/x402/bazaar.ts:46](https://github.com/dentsusoken/vecr
 
 > **query**: `string`
 
-Defined in: [src/commands/x402/bazaar.ts:43](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L43)
+Defined in: [src/commands/x402/bazaar.ts:43](https://github.com/dentsusoken/vecrea-ai/blob/0eb9a22e94bada7f80d84a403a65048c4f8ff325/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L43)
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: [src/commands/x402/bazaar.ts:43](https://github.com/dentsusoken/vecr
 
 > `optional` **top**: `number`
 
-Defined in: [src/commands/x402/bazaar.ts:44](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L44)
+Defined in: [src/commands/x402/bazaar.ts:44](https://github.com/dentsusoken/vecrea-ai/blob/0eb9a22e94bada7f80d84a403a65048c4f8ff325/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L44)

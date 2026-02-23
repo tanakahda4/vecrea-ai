@@ -8,7 +8,7 @@
 
 > **RunStatusResult** = `object`
 
-Defined in: [src/commands/status.ts:3](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/status.ts#L3)
+Defined in: [src/commands/status.ts:3](https://github.com/dentsusoken/vecrea-ai/blob/0eb9a22e94bada7f80d84a403a65048c4f8ff325/projects/programmatic-wallet/src/commands/status.ts#L3)
 
 ## Properties
 
@@ -16,4 +16,4 @@ Defined in: [src/commands/status.ts:3](https://github.com/dentsusoken/vecrea-ai/
 
 > **user**: `User` \| `null`
 
-Defined in: [src/commands/status.ts:4](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/status.ts#L4)
+Defined in: [src/commands/status.ts:4](https://github.com/dentsusoken/vecrea-ai/blob/0eb9a22e94bada7f80d84a403a65048c4f8ff325/projects/programmatic-wallet/src/commands/status.ts#L4)

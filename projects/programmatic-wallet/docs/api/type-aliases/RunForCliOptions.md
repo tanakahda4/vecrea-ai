@@ -8,7 +8,7 @@
 
 > **RunForCliOptions** = `object`
 
-Defined in: [src/helpers/runForCli.ts:5](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/helpers/runForCli.ts#L5)
+Defined in: [src/helpers/runForCli.ts:5](https://github.com/dentsusoken/vecrea-ai/blob/0eb9a22e94bada7f80d84a403a65048c4f8ff325/projects/programmatic-wallet/src/helpers/runForCli.ts#L5)
 
 ## Properties
 
@@ -16,6 +16,6 @@ Defined in: [src/helpers/runForCli.ts:5](https://github.com/dentsusoken/vecrea-a
 
 > `optional` **skipPersist**: `boolean`
 
-Defined in: [src/helpers/runForCli.ts:7](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/helpers/runForCli.ts#L7)
+Defined in: [src/helpers/runForCli.ts:7](https://github.com/dentsusoken/vecrea-ai/blob/0eb9a22e94bada7f80d84a403a65048c4f8ff325/projects/programmatic-wallet/src/helpers/runForCli.ts#L7)
 
 Skip persistAuthState (e.g. auth login - no refresh token yet). Default: false

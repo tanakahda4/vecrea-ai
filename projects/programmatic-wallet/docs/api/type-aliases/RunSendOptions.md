@@ -8,7 +8,7 @@
 
 > **RunSendOptions** = `object`
 
-Defined in: [src/commands/send.ts:14](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/send.ts#L14)
+Defined in: [src/commands/send.ts:14](https://github.com/dentsusoken/vecrea-ai/blob/0eb9a22e94bada7f80d84a403a65048c4f8ff325/projects/programmatic-wallet/src/commands/send.ts#L14)
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: [src/commands/send.ts:14](https://github.com/dentsusoken/vecrea-ai/b
 
 > **amount**: `string`
 
-Defined in: [src/commands/send.ts:16](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/send.ts#L16)
+Defined in: [src/commands/send.ts:16](https://github.com/dentsusoken/vecrea-ai/blob/0eb9a22e94bada7f80d84a403a65048c4f8ff325/projects/programmatic-wallet/src/commands/send.ts#L16)
 
 Amount as $1.00 or atomic units (e.g. 1000000).
 
@@ -26,7 +26,7 @@ Amount as $1.00 or atomic units (e.g. 1000000).
 
 > `optional` **chain**: `string`
 
-Defined in: [src/commands/send.ts:20](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/send.ts#L20)
+Defined in: [src/commands/send.ts:20](https://github.com/dentsusoken/vecrea-ai/blob/0eb9a22e94bada7f80d84a403a65048c4f8ff325/projects/programmatic-wallet/src/commands/send.ts#L20)
 
 Chain (default: base).
 
@@ -36,7 +36,7 @@ Chain (default: base).
 
 > **to**: `string`
 
-Defined in: [src/commands/send.ts:18](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/send.ts#L18)
+Defined in: [src/commands/send.ts:18](https://github.com/dentsusoken/vecrea-ai/blob/0eb9a22e94bada7f80d84a403a65048c4f8ff325/projects/programmatic-wallet/src/commands/send.ts#L18)
 
 Recipient address or ENS name.
 
@@ -46,6 +46,6 @@ Recipient address or ENS name.
 
 > `optional` **verbose**: `boolean`
 
-Defined in: [src/commands/send.ts:22](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/send.ts#L22)
+Defined in: [src/commands/send.ts:22](https://github.com/dentsusoken/vecrea-ai/blob/0eb9a22e94bada7f80d84a403a65048c4f8ff325/projects/programmatic-wallet/src/commands/send.ts#L22)
 
 Print transaction details before sending.
