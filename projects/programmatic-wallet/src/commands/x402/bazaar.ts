@@ -53,7 +53,7 @@ export type RunX402BazaarSearchResult = {
 
 /**
  * Search the x402 bazaar by keyword. Uses cached resources and filters client-side.
- * Cache at ~/.config/pwal/bazaar/, auto-refresh after 12 hours. On 429, uses cache if available.
+ * Cache at ~/.config/wal-sdk/bazaar/, auto-refresh after 12 hours. On 429, uses cache if available.
  */
 export const runX402BazaarSearch = async (
   options: RunX402BazaarSearchOptions

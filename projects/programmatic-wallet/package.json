@@ -1,10 +1,10 @@
 {
-  "name": "pwal",
+  "name": "wal-sdk",
   "version": "1.0.0",
   "description": "Programmatic wallet for CDP (Coinbase Developer Platform) with Base USDC and x402. Use as CLI, SDK, or in AI agents (Cursor/Codex) and cloud (Vercel AI SDK).",
   "type": "module",
   "bin": {
-    "pwal": "bin/pwal.ts"
+    "wal-sdk": "bin/pwal.ts"
   },
   "files": [
     "bin",

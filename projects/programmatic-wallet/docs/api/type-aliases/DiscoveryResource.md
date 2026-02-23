@@ -1,14 +1,14 @@
-[**pwal**](../README.md)
+[**wal-sdk**](../README.md)
 
 ***
 
-[pwal](../README.md) / DiscoveryResource
+[wal-sdk](../README.md) / DiscoveryResource
 
 # Type Alias: DiscoveryResource
 
 > **DiscoveryResource** = `object`
 
-Defined in: [src/commands/x402/bazaar.ts:3](https://github.com/dentsusoken/vecrea-ai/blob/d7515fd128635d29a7e37d5e8a1f73fab8b6a37e/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L3)
+Defined in: [src/commands/x402/bazaar.ts:3](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L3)
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: [src/commands/x402/bazaar.ts:3](https://github.com/dentsusoken/vecre
 
 > **accepts**: `object`[]
 
-Defined in: [src/commands/x402/bazaar.ts:7](https://github.com/dentsusoken/vecrea-ai/blob/d7515fd128635d29a7e37d5e8a1f73fab8b6a37e/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L7)
+Defined in: [src/commands/x402/bazaar.ts:7](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L7)
 
 #### Index Signature
 
@@ -52,7 +52,7 @@ Defined in: [src/commands/x402/bazaar.ts:7](https://github.com/dentsusoken/vecre
 
 > **lastUpdated**: `string`
 
-Defined in: [src/commands/x402/bazaar.ts:16](https://github.com/dentsusoken/vecrea-ai/blob/d7515fd128635d29a7e37d5e8a1f73fab8b6a37e/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L16)
+Defined in: [src/commands/x402/bazaar.ts:16](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L16)
 
 ***
 
@@ -60,7 +60,7 @@ Defined in: [src/commands/x402/bazaar.ts:16](https://github.com/dentsusoken/vecr
 
 > `optional` **metadata**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/commands/x402/bazaar.ts:17](https://github.com/dentsusoken/vecrea-ai/blob/d7515fd128635d29a7e37d5e8a1f73fab8b6a37e/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L17)
+Defined in: [src/commands/x402/bazaar.ts:17](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L17)
 
 ***
 
@@ -68,7 +68,7 @@ Defined in: [src/commands/x402/bazaar.ts:17](https://github.com/dentsusoken/vecr
 
 > **resource**: `string`
 
-Defined in: [src/commands/x402/bazaar.ts:4](https://github.com/dentsusoken/vecrea-ai/blob/d7515fd128635d29a7e37d5e8a1f73fab8b6a37e/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L4)
+Defined in: [src/commands/x402/bazaar.ts:4](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L4)
 
 ***
 
@@ -76,7 +76,7 @@ Defined in: [src/commands/x402/bazaar.ts:4](https://github.com/dentsusoken/vecre
 
 > **type**: `string`
 
-Defined in: [src/commands/x402/bazaar.ts:5](https://github.com/dentsusoken/vecrea-ai/blob/d7515fd128635d29a7e37d5e8a1f73fab8b6a37e/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L5)
+Defined in: [src/commands/x402/bazaar.ts:5](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L5)
 
 ***
 
@@ -84,4 +84,4 @@ Defined in: [src/commands/x402/bazaar.ts:5](https://github.com/dentsusoken/vecre
 
 > **x402Version**: `number`
 
-Defined in: [src/commands/x402/bazaar.ts:6](https://github.com/dentsusoken/vecrea-ai/blob/d7515fd128635d29a7e37d5e8a1f73fab8b6a37e/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L6)
+Defined in: [src/commands/x402/bazaar.ts:6](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L6)

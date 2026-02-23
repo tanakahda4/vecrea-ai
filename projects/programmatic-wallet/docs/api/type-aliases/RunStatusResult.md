@@ -1,14 +1,14 @@
-[**pwal**](../README.md)
+[**wal-sdk**](../README.md)
 
 ***
 
-[pwal](../README.md) / RunStatusResult
+[wal-sdk](../README.md) / RunStatusResult
 
 # Type Alias: RunStatusResult
 
 > **RunStatusResult** = `object`
 
-Defined in: [src/commands/status.ts:3](https://github.com/dentsusoken/vecrea-ai/blob/d7515fd128635d29a7e37d5e8a1f73fab8b6a37e/projects/programmatic-wallet/src/commands/status.ts#L3)
+Defined in: [src/commands/status.ts:3](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/status.ts#L3)
 
 ## Properties
 
@@ -16,4 +16,4 @@ Defined in: [src/commands/status.ts:3](https://github.com/dentsusoken/vecrea-ai/
 
 > **user**: `User` \| `null`
 
-Defined in: [src/commands/status.ts:4](https://github.com/dentsusoken/vecrea-ai/blob/d7515fd128635d29a7e37d5e8a1f73fab8b6a37e/projects/programmatic-wallet/src/commands/status.ts#L4)
+Defined in: [src/commands/status.ts:4](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/status.ts#L4)

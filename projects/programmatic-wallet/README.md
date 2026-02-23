@@ -1,8 +1,8 @@
-# pwal
+# wal-sdk
 
 Programmatic wallet using [@coinbase/cdp-core](https://www.npmjs.com/package/@coinbase/cdp-core) with TypeScript.
 
-Use pwal as a **CLI**, **SDK** (import and call from your code), **AI agent skill** (via SKILL.md in Cursor, Codex, CC, etc.), or in **cloud/serverless** environments (Vercel AI SDK and similar). When running in Node.js, `localStorage` is emulated via [localstorage-polyfill](https://www.npmjs.com/package/localstorage-polyfill) so the CDP SDK can store tokens. In the browser, the native `window.localStorage` is used.
+Use wal-sdk as a **CLI**, **SDK** (import and call from your code), **AI agent skill** (via SKILL.md in Cursor, Codex, CC, etc.), or in **cloud/serverless** environments (Vercel AI SDK and similar). When running in Node.js, `localStorage` is emulated via [localstorage-polyfill](https://www.npmjs.com/package/localstorage-polyfill) so the CDP SDK can store tokens. In the browser, the native `window.localStorage` is used.
 
 ## Setup
 
@@ -27,7 +27,7 @@ Use pwal as a **CLI**, **SDK** (import and call from your code), **AI agent skil
 Run the CLI with:
 
 ```bash
-npx pwal [command] [options]
+npx wal-sdk [command] [options]
 ```
 
 ### Commands
@@ -134,44 +134,44 @@ npx pwal [command] [options]
 
 ```bash
 # Authentication
-npx pwal auth login your@email.com
-npx pwal auth verify <flow-id> <6-digit-code>
-npx pwal auth logout
+npx wal-sdk auth login your@email.com
+npx wal-sdk auth verify <flow-id> <6-digit-code>
+npx wal-sdk auth logout
 
 # Wallet
-npx pwal status
-npx pwal address
-npx pwal balance                    # Base mainnet (default)
-npx pwal balance --base-sepolia     # Base Sepolia testnet
-npx pwal balance --chain base-sepolia
-npx pwal send $1.00 0x...recipient...   # Send USDC (Base mainnet)
-npx pwal send 1000000 vitalik.eth       # Send 1 USDC to ENS
-npx pwal send $0.01 0x... -c base-sepolia  # Send on Base Sepolia
-npx pwal faucet
+npx wal-sdk status
+npx wal-sdk address
+npx wal-sdk balance                    # Base mainnet (default)
+npx wal-sdk balance --base-sepolia     # Base Sepolia testnet
+npx wal-sdk balance --chain base-sepolia
+npx wal-sdk send $1.00 0x...recipient...   # Send USDC (Base mainnet)
+npx wal-sdk send 1000000 vitalik.eth       # Send 1 USDC to ENS
+npx wal-sdk send $0.01 0x... -c base-sepolia  # Send on Base Sepolia
+npx wal-sdk faucet
 
 # x402 Bazaar (discovery)
-# Results are cached at ~/.config/pwal/bazaar/ (auto-refresh after 12h). On 429, cached data is used.
-npx pwal x402 bazaar search "weather"
-npx pwal x402 bazaar search "weather" --network base
-npx pwal x402 bazaar search "sentiment" -k 10 --chain base-sepolia
-npx pwal x402 bazaar list --network base
-npx pwal x402 bazaar list --chain base-sepolia
-npx pwal x402 bazaar list --full
-npx pwal x402 details https://example.com/api/weather
-npx pwal x402 bazaar details https://example.com/api/weather  # alias
+# Results are cached at ~/.config/wal-sdk/bazaar/ (auto-refresh after 12h). On 429, cached data is used.
+npx wal-sdk x402 bazaar search "weather"
+npx wal-sdk x402 bazaar search "weather" --network base
+npx wal-sdk x402 bazaar search "sentiment" -k 10 --chain base-sepolia
+npx wal-sdk x402 bazaar list --network base
+npx wal-sdk x402 bazaar list --chain base-sepolia
+npx wal-sdk x402 bazaar list --full
+npx wal-sdk x402 details https://example.com/api/weather
+npx wal-sdk x402 bazaar details https://example.com/api/weather  # alias
 
 # x402 Pay (requires auth, uses CDP fetchWithX402)
-npx pwal x402 pay https://example.com/api/weather
-npx pwal x402 pay https://example.com/api/sentiment -X POST -d '{"text": "I love this product"}'
-npx pwal x402 pay https://example.com/api/data --max-amount 100000  # max $0.10
-npx pwal x402 pay https://example.com/api/weather -c base-sepolia   # pay on Base Sepolia
+npx wal-sdk x402 pay https://example.com/api/weather
+npx wal-sdk x402 pay https://example.com/api/sentiment -X POST -d '{"text": "I love this product"}'
+npx wal-sdk x402 pay https://example.com/api/data --max-amount 100000  # max $0.10
+npx wal-sdk x402 pay https://example.com/api/weather -c base-sepolia   # pay on Base Sepolia
 ```
 
 ### Help
 
 ```bash
-npx pwal --help
-npx pwal balance --help
+npx wal-sdk --help
+npx wal-sdk balance --help
 ```
 
 ### SDK / Programmatic
@@ -179,11 +179,11 @@ npx pwal balance --help
 Import and call the run functions from your code:
 
 ```typescript
-import { runAddress, runBalance, runSend, runX402Pay } from "pwal";
+import { runAddress, runBalance, runSend, runX402Pay } from "wal-sdk";
 ```
 
 See [API Documentation](./docs/api/README.md) for the full reference.
 
 ### AI Agents & Cloud
 
-pwal can be used in AI coding assistants (Cursor, Codex, CC) via SKILL.md, and in serverless/cloud environments (Vercel AI SDK, etc.). A separate project provides SKILL.md and deployment examples.
+wal-sdk can be used in AI coding assistants (Cursor, Codex, CC) via SKILL.md, and in serverless/cloud environments (Vercel AI SDK, etc.). A separate project provides SKILL.md and deployment examples.

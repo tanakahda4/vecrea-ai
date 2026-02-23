@@ -91,7 +91,7 @@ export const runX402Pay = async (options: RunX402PayOptions): Promise<RunX402Pay
   try {
     const addressResult = await runAddress();
     if (addressResult.address === undefined) return { error: addressResult.error };
-    if (verbose) console.error("[pwal] Paying from:", addressResult.address);
+    if (verbose) console.error("[wal-sdk] Paying from:", addressResult.address);
 
     const chain = (options.chain ?? "base").toLowerCase();
     const targetNetwork = CHAIN_TO_EIP155[chain] ?? `eip155:${chain}`;
@@ -159,7 +159,7 @@ export const runX402Pay = async (options: RunX402PayOptions): Promise<RunX402Pay
     return { status: response.status, body, headers: resHeaders };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    if (verbose && err instanceof Error && err.cause) console.error("[pwal] Error:", err.cause);
+    if (verbose && err instanceof Error && err.cause) console.error("[wal-sdk] Error:", err.cause);
     if (msg.includes("not authenticated") || msg.includes("Not authenticated") || msg.includes("auth")) {
       return { error: "not_authenticated" };
     }

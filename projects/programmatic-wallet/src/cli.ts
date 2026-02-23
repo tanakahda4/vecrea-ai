@@ -38,7 +38,7 @@ import {
 } from "./helpers/x402-format";
 
 /** CLI command for usage instructions. */
-const CLI_CMD = "npx pwal";
+const CLI_CMD = "npx wal-sdk";
 
 const printAuthSignInInstructions = (): void => {
   console.log("Sign in using one of:");
@@ -50,7 +50,7 @@ const printAuthSignInInstructions = (): void => {
 const program = new Command();
 
 program
-  .name("pwal")
+  .name("wal-sdk")
   .description("Programmatic wallet CLI")
   .version("1.0.0");
 

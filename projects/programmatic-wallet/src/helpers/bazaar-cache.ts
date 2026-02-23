@@ -14,7 +14,7 @@ export type CachedDiscoveryResource = {
 const STALE_HOURS = 12;
 
 const getCacheDir = (): string =>
-  join(homedir(), ".config", "pwal", "bazaar");
+  join(homedir(), ".config", "wal-sdk", "bazaar");
 
 const getCachePath = (): string => join(getCacheDir(), "resources.json");
 

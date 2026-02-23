@@ -1,10 +1,10 @@
-**pwal**
+**wal-sdk**
 
 ***
 
-# pwal
+# wal-sdk
 
-pwal SDK - Programmatic wallet for CDP (Coinbase Developer Platform).
+wal-sdk - Programmatic wallet for CDP (Coinbase Developer Platform).
 
 Use as a library in your Node.js, cloud (Vercel AI SDK), or AI agent (Cursor/Codex) projects.
 

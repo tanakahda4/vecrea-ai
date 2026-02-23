@@ -156,7 +156,7 @@ export const runSend = async (options: RunSendOptions): Promise<RunSendResult> =
     };
 
     if (verbose) {
-      console.error("[pwal] Transaction:");
+      console.error("[wal-sdk] Transaction:");
       console.error(JSON.stringify({
         from: addressResult.address,
         to: transaction.to,
@@ -169,7 +169,7 @@ export const runSend = async (options: RunSendOptions): Promise<RunSendResult> =
         chainId: transaction.chainId,
         chain: chainLower,
       }, null, 2));
-      console.error("[pwal] ERC20 transfer:", { to: toAddress, amount: amountBigInt.toString() });
+      console.error("[wal-sdk] ERC20 transfer:", { to: toAddress, amount: amountBigInt.toString() });
     }
 
     const result = await sendEvmTransaction({
@@ -200,7 +200,7 @@ export const runSend = async (options: RunSendOptions): Promise<RunSendResult> =
     if (msg.toLowerCase().includes("exceeds balance") || msg.includes("insufficient")) {
       return {
         error: "request_failed",
-        message: `${msg} Check balance: npx pwal balance -c ${chainLower}`,
+        message: `${msg} Check balance: npx wal-sdk balance -c ${chainLower}`,
         chain: chainLower,
       };
     }

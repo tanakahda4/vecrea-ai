@@ -1,14 +1,14 @@
-[**pwal**](../README.md)
+[**wal-sdk**](../README.md)
 
 ***
 
-[pwal](../README.md) / RunX402BazaarListOptions
+[wal-sdk](../README.md) / RunX402BazaarListOptions
 
 # Type Alias: RunX402BazaarListOptions
 
 > **RunX402BazaarListOptions** = `object`
 
-Defined in: [src/commands/x402/bazaar.ts:73](https://github.com/dentsusoken/vecrea-ai/blob/d7515fd128635d29a7e37d5e8a1f73fab8b6a37e/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L73)
+Defined in: [src/commands/x402/bazaar.ts:73](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L73)
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: [src/commands/x402/bazaar.ts:73](https://github.com/dentsusoken/vecr
 
 > `optional` **forceRefresh**: `boolean`
 
-Defined in: [src/commands/x402/bazaar.ts:77](https://github.com/dentsusoken/vecrea-ai/blob/d7515fd128635d29a7e37d5e8a1f73fab8b6a37e/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L77)
+Defined in: [src/commands/x402/bazaar.ts:77](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L77)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/commands/x402/bazaar.ts:77](https://github.com/dentsusoken/vecr
 
 > `optional` **limit**: `number`
 
-Defined in: [src/commands/x402/bazaar.ts:75](https://github.com/dentsusoken/vecrea-ai/blob/d7515fd128635d29a7e37d5e8a1f73fab8b6a37e/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L75)
+Defined in: [src/commands/x402/bazaar.ts:75](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L75)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/commands/x402/bazaar.ts:75](https://github.com/dentsusoken/vecr
 
 > `optional` **network**: `string`
 
-Defined in: [src/commands/x402/bazaar.ts:74](https://github.com/dentsusoken/vecrea-ai/blob/d7515fd128635d29a7e37d5e8a1f73fab8b6a37e/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L74)
+Defined in: [src/commands/x402/bazaar.ts:74](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L74)
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: [src/commands/x402/bazaar.ts:74](https://github.com/dentsusoken/vecr
 
 > `optional` **offset**: `number`
 
-Defined in: [src/commands/x402/bazaar.ts:76](https://github.com/dentsusoken/vecrea-ai/blob/d7515fd128635d29a7e37d5e8a1f73fab8b6a37e/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L76)
+Defined in: [src/commands/x402/bazaar.ts:76](https://github.com/dentsusoken/vecrea-ai/blob/4250676ecea381199037768f398044ec7c7d1a6a/projects/programmatic-wallet/src/commands/x402/bazaar.ts#L76)
