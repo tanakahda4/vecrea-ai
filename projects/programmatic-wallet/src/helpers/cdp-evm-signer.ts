@@ -1,4 +1,5 @@
 import { signEvmTypedData } from "@coinbase/cdp-core";
+import type { ClientEvmSigner } from "@x402/evm";
 import { getTypesForEIP712Domain } from "viem";
 import type { Address } from "viem";
 import type { PublicClient } from "viem";
@@ -25,19 +26,30 @@ const toJsonSerializable = (value: unknown): unknown => {
 
 /**
  * Creates an x402-compatible signer that uses signEvmTypedData from CDP.
- * Converts BigInt to string in typed data before calling the API (fixes JSON serialization).
+ *
+ * The x402 client (e.g. @x402/fetch) passes EIP-712 typed data with BigInt values
+ * (value, validAfter, validBefore, etc.) to the signer. The CDP API serializes
+ * the request as JSON, but JSON.stringify cannot handle BigInt and throws
+ * "Do not know how to serialize a BigInt". This signer converts BigInt to string
+ * in the message before calling signEvmTypedData, so the API request succeeds.
+ *
+ * Also ensures EIP712Domain is included in types (required by the CDP API).
+ *
+ * @param address - EVM address to sign with (must be authenticated via CDP)
+ * @param publicClient - viem PublicClient for readContract (allowance, nonces, etc.)
+ * @returns ClientEvmSigner compatible with registerExactEvmScheme
  */
 export const createCdpEvmSigner = (
   address: Address,
   publicClient: PublicClient
-) => ({
+): ClientEvmSigner => ({
   address,
   signTypedData: async (typedData: {
     domain: Record<string, unknown>;
     types: Record<string, unknown>;
     primaryType: string;
     message: Record<string, unknown>;
-  }) => {
+  }): Promise<`0x${string}`> => {
     const messageForApi = toJsonSerializable(typedData.message) as Record<
       string,
       unknown

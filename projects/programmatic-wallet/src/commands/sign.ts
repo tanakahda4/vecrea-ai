@@ -1,4 +1,4 @@
-import { getCurrentUser, signEvmTypedData } from "@coinbase/cdp-core";
+import { signEvmTypedData } from "@coinbase/cdp-core";
 import { getAddress, toHex } from "viem";
 import { authorizationTypes } from "@x402/evm";
 import { runAddress } from "./address";
@@ -25,11 +25,11 @@ export type RunSignOptions = {
   to?: string;
   /** Amount in token atomic units (default: "1000"). */
   value?: string;
-  /** Token/asset contract address (default: Base Sepolia USDC). */
+  /** Token/asset contract address (default: USDC for chain). */
   asset?: string;
-  /** Chain for domain.chainId (default: "base-sepolia"). */
+  /** Chain for domain.chainId (default: "base"). */
   chain?: string;
-  /** EIP-712 domain name (default: "USDC"). */
+  /** EIP-712 domain name (default: "USD Coin" for base, "USDC" for base-sepolia). */
   domainName?: string;
   /** EIP-712 domain version (default: "2"). */
   domainVersion?: string;
@@ -56,13 +56,15 @@ export const runSign = async (options: RunSignOptions = {}): Promise<RunSignResu
     to: toOpt,
     value: valueOpt,
     asset: assetOpt,
-    chain = "base-sepolia",
-    domainName = "USDC",
+    chain = "base",
+    domainName: domainNameOpt,
     domainVersion = "2",
     verbose = false,
   } = options;
 
   const chainId = chain === "base" ? 8453 : 84532;
+  const domainName =
+    domainNameOpt ?? (chain === "base" ? "USD Coin" : "USDC");
   const asset = assetOpt
     ? (getAddress(assetOpt) as `0x${string}`)
     : (getUsdcAddress(chain) as `0x${string}`);

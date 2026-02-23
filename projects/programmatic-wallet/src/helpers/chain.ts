@@ -65,10 +65,10 @@ export const getUsdcAddress = (chain: string): Address => {
 export const getWethAddress = (): Address => WETH_ADDRESS;
 
 /** Returns viem chain for wallet client (x402 pay). */
-export const getChainForWallet = (chainName: string = "base-sepolia") => {
+export const getChainForWallet = (chainName: string = "base") => {
   const config =
     (CHAIN_CONFIG as Record<string, (typeof CHAIN_CONFIG)["base"]>)[
       chainName.toLowerCase()
-    ] ?? CHAIN_CONFIG["base-sepolia"];
+    ] ?? CHAIN_CONFIG.base;
   return config.chain;
 };

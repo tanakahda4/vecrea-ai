@@ -147,7 +147,7 @@ program
   .addOption(new Option("-a, --asset <address>", "token contract address (default: USDC)"))
   .addOption(
     new Option("-c, --chain <chain>", "chain for domain")
-      .default("base-sepolia")
+      .default("base")
       .choices(["base", "base-sepolia"])
   )
   .addOption(new Option("--json", "output as JSON"))
@@ -568,7 +568,7 @@ x402
     ) => {
       const spinner = ora("Making paid request...").start();
       try {
-        const chain = opts.chain ?? opts.network;
+        const chain = opts.chain ?? opts.network ?? "base";
         const result = await runForCli(() =>
           runX402Pay({
             url,
