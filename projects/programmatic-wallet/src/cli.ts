@@ -1,77 +1,33 @@
 import "./env-shim";
 import "dotenv/config";
-import {
-  Config,
-  getCurrentUser,
-  isSignedIn,
-  signInWithEmail,
-  verifyEmailOTP,
-} from "@coinbase/cdp-core";
+import { getCurrentUser, isSignedIn } from "@coinbase/cdp-core";
 import {
   formatAssetBalance,
   formatTokenBalance,
-  getAssetBalance,
-  getTokenBalance,
-} from "./helper/balance";
-import {
-  getChainLabel,
-  getUsdcAddress,
-  getWethAddress,
-  isSupportedChain,
-  SUPPORTED_CHAINS,
-} from "./helper/chain";
-import {
-  persistAuthState,
-  restoreAuthState,
-} from "./helper/auth-persistence";
-import { initializeWithNodeCompat } from "./helper/initializeWithNodeCompat";
-import { type Address } from "viem";
+} from "./helpers/balance";
+import { getChainLabel, SUPPORTED_CHAINS } from "./helpers/chain";
+import { clearAuthState } from "./helpers/auth-persistence";
+import { getEmail, getEvmAddress } from "./helpers/user";
+import { runForCli } from "./helpers/runForCli";
+import { getConfig } from "./config";
+import { runAddress } from "./commands/address";
+import { runAuthLogin } from "./commands/auth/login";
+import { runAuthLogout } from "./commands/auth/logout";
+import { runAuthVerify } from "./commands/auth/verify";
+import { runBalance } from "./commands/balance";
+import { runStatus } from "./commands/status";
 
-const getConfig = (): Config => ({
-  projectId: process.env.CDP_PROJECT_ID ?? "your-project-id",
-  disableAnalytics: true,
-  ethereum: {
-    createOnLogin: "eoa",
-  },
-});
-
-const getEvmAddressForConfig = (
-  config: Config,
-  user: Awaited<ReturnType<typeof getCurrentUser>>
-): string | undefined => {
-  const createOnLogin = config.ethereum?.createOnLogin;
-  if (createOnLogin === "smart") {
-    return (
-      user?.evmSmartAccountObjects?.[0]?.address ?? user?.evmAccounts?.[0]
-    );
-  }
-  return user?.evmAccountObjects?.[0]?.address ?? user?.evmAccounts?.[0];
-};
-
-const runAuthLogin = async (email: string): Promise<void> => {
-  const authResult = await signInWithEmail({ email });
-  console.log("✓ Verification code sent!");
-  console.log(`ℹ Check your email (${email}) for a 6-digit code.\n`);
-  console.log(`Flow ID: ${authResult.flowId}\n`);
-  console.log("To complete sign-in, run:");
-  console.log(
-    `  npx tsx src/cli.ts auth verify ${authResult.flowId} <6-digit-code>`
-  );
-};
-
-const runAuthVerify = async (flowId: string, otp: string): Promise<void> => {
-  const result = await verifyEmailOTP({ flowId, otp });
-  await persistAuthState();
-  const email =
-    result.user.authenticationMethods?.email?.email ?? "unknown@email.com";
-  console.log("✔ Authentication successful!");
-  console.log(`Successfully signed in as ${email}.\n`);
-  console.log("You can now use wallet commands:");
-  console.log("  npx tsx src/cli.ts balance");
-  console.log("  npx tsx src/cli.ts address");
-};
+/** CLI command for usage instructions. Will be "npx pwal" when published. */
+const CLI_CMD = "npx tsx src/cli.ts";
 
 const FAUCET_URL = "https://portal.cdp.coinbase.com/products/faucet";
+
+const printAuthSignInInstructions = (): void => {
+  console.log("Sign in using one of:");
+  console.log("  1. Email OTP:");
+  console.log(`     ${CLI_CMD} auth login <your-email>`);
+  console.log(`     ${CLI_CMD} auth verify <flow-id> <6-digit-code>`);
+};
 
 const main = async () => {
   const args = process.argv.slice(2);
@@ -83,136 +39,14 @@ const main = async () => {
       process.exit(1);
     }
     console.log("Initializing CDP Core...");
-    await restoreAuthState();
-    await initializeWithNodeCompat(getConfig());
-    await runAuthLogin(email);
-    process.exit(0);
-  }
-
-  if (args[0] === "address") {
-    await restoreAuthState();
-    await initializeWithNodeCompat(getConfig());
-    const signedIn = await isSignedIn();
-    await persistAuthState();
-    if (!signedIn) {
-      console.log("✖ Failed to fetch address");
-      console.log("Authentication required.\n");
-      console.log("Sign in using one of:");
-      console.log("  1. Email OTP:");
-      console.log("     npx tsx src/cli.ts auth login <your-email>");
-      console.log("     npx tsx src/cli.ts auth verify <flow-id> <6-digit-code>");
-      process.exit(1);
-    }
-    const config = getConfig();
-    const user = await getCurrentUser();
-    const address = getEvmAddressForConfig(config, user);
-    if (!address) {
-      console.log("✖ Failed to fetch address");
-      console.log("No EVM account found.\n");
-      console.log("Sign in using one of:");
-      console.log("  1. Email OTP:");
-      console.log("     npx tsx src/cli.ts auth login <your-email>");
-      console.log("     npx tsx src/cli.ts auth verify <flow-id> <6-digit-code>");
-      process.exit(1);
-    }
-    console.log(address);
-    process.exit(0);
-  }
-
-  if (args[0] === "balance") {
-    const chainIdx = args.indexOf("--chain");
-    const chain =
-      chainIdx >= 0 && args[chainIdx + 1]
-        ? args[chainIdx + 1].toLowerCase()
-        : "base";
-    if (!isSupportedChain(chain)) {
-      console.error(`✖ Unsupported chain: ${chain}`);
-      console.error(`Supported chains: ${SUPPORTED_CHAINS.join(", ")}`);
-      process.exit(1);
-    }
-    await restoreAuthState();
-    await initializeWithNodeCompat(getConfig());
-    const signedIn = await isSignedIn();
-    await persistAuthState();
-    if (!signedIn) {
-      console.log("✖ Failed to fetch balance");
-      console.log("Authentication required.\n");
-      console.log("Sign in using one of:");
-      console.log("  1. Email OTP:");
-      console.log("     npx tsx src/cli.ts auth login <your-email>");
-      console.log("     npx tsx src/cli.ts auth verify <flow-id> <6-digit-code>");
-      process.exit(1);
-    }
-    const config = getConfig();
-    const user = await getCurrentUser();
-    const evmAddress = getEvmAddressForConfig(config, user);
-    if (!evmAddress) {
-      console.log("✖ Failed to fetch balance");
-      console.log("No EVM account found.\n");
-      console.log("Sign in using one of:");
-      console.log("  1. Email OTP:");
-      console.log("     npx tsx src/cli.ts auth login <your-email>");
-      console.log("     npx tsx src/cli.ts auth verify <flow-id> <6-digit-code>");
-      process.exit(1);
-    }
-    const address = evmAddress as Address;
-    const [ethWei, usdcRaw, wethRaw] = await Promise.all([
-      getAssetBalance({ address, chain }),
-      getTokenBalance({
-        address,
-        tokenAddress: getUsdcAddress(chain),
-        chain,
-      }),
-      getTokenBalance({
-        address,
-        tokenAddress: getWethAddress(),
-        chain,
-      }),
-    ]);
-    console.log(`\nWallet Balances (${getChainLabel(chain)})`);
-    console.log("────────────────────────");
-    console.log(`USDC    $${formatTokenBalance(usdcRaw, 6)}`);
-    console.log(`ETH     ${formatAssetBalance(ethWei)}`);
-    console.log(`WETH    ${formatTokenBalance(wethRaw, 18)}`);
-    process.exit(0);
-  }
-
-  if (args[0] === "faucet") {
-    await restoreAuthState();
-    await initializeWithNodeCompat(getConfig());
-    const signedIn = await isSignedIn();
-    await persistAuthState();
-    const config = getConfig();
-    const user = signedIn ? await getCurrentUser() : null;
-    const evmAddress = user ? getEvmAddressForConfig(config, user) : undefined;
-    const url = evmAddress
-      ? `${FAUCET_URL}?address=${evmAddress}`
-      : FAUCET_URL;
-    console.log("Base Sepolia faucet (select ETH or USDC on the site):");
-    console.log(`  ${url}`);
-    process.exit(0);
-  }
-
-  if (args[0] === "status") {
-    console.log("Initializing CDP Core...");
-    await restoreAuthState();
-    await initializeWithNodeCompat(getConfig());
-    const signedIn = await isSignedIn();
-    await persistAuthState();
-    console.log("\nAuthentication");
-    if (signedIn) {
-      const user = await getCurrentUser();
-      const email =
-        user?.authenticationMethods?.email?.email ?? "unknown@email.com";
-      console.log("✓ Authenticated");
-      console.log(`Logged in as: ${email}`);
-    } else {
-      console.log("⚠ Not authenticated\n");
-      console.log("Sign in using one of:");
-      console.log("  1. Email OTP:");
-      console.log("     npx tsx src/cli.ts auth login <your-email>");
-      console.log("     npx tsx src/cli.ts auth verify <flow-id> <6-digit-code>");
-    }
+    const { flowId } = await runForCli(() => runAuthLogin({ email }), {
+      skipPersist: true,
+    });
+    console.log("✓ Verification code sent!");
+    console.log(`ℹ Check your email (${email}) for a 6-digit code.\n`);
+    console.log(`Flow ID: ${flowId}\n`);
+    console.log("To complete sign-in, run:");
+    console.log(`  ${CLI_CMD} auth verify ${flowId} <6-digit-code>`);
     process.exit(0);
   }
 
@@ -224,19 +58,107 @@ const main = async () => {
       process.exit(1);
     }
     console.log("Initializing CDP Core...");
-    await restoreAuthState();
-    await initializeWithNodeCompat(getConfig());
-    await runAuthVerify(flowId, otp);
+    const result = await runForCli(() => runAuthVerify({ flowId, otp }));
+    const email = getEmail(result.user);
+    console.log("✔ Authentication successful!");
+    console.log(`Successfully signed in as ${email}.\n`);
+    console.log("You can now use wallet commands:");
+    console.log(`  ${CLI_CMD} balance`);
+    console.log(`  ${CLI_CMD} address`);
+    process.exit(0);
+  }
+
+  if (args[0] === "auth" && args[1] === "logout") {
+    await runForCli(async () => {
+      await runAuthLogout();
+      await clearAuthState();
+    }, { skipPersist: true });
+    console.log("✔ Signed out successfully.");
+    process.exit(0);
+  }
+
+  if (args[0] === "status") {
+    console.log("Initializing CDP Core...");
+    const { user } = await runForCli(() => runStatus());
+    console.log("\nAuthentication");
+    if (user) {
+      const email = getEmail(user);
+      console.log("✓ Authenticated");
+      console.log(`Logged in as: ${email}`);
+    } else {
+      console.log("⚠ Not authenticated\n");
+      printAuthSignInInstructions();
+    }
+    process.exit(0);
+  }
+
+  if (args[0] === "address") {
+    const result = await runForCli(() => runAddress());
+    if ("error" in result) {
+      console.log("✖ Failed to fetch address");
+      if (result.error === "no_evm_account") {
+        console.log("No EVM account found.\n");
+      } else {
+        console.log("Authentication required.\n");
+      }
+      printAuthSignInInstructions();
+      process.exit(1);
+    }
+    console.log(result.address);
+    process.exit(0);
+  }
+
+  if (args[0] === "balance") {
+    const chainIdx = args.indexOf("--chain");
+    const chain =
+      chainIdx >= 0 && args[chainIdx + 1]
+        ? args[chainIdx + 1].toLowerCase()
+        : "base";
+    const result = await runForCli(() => runBalance({ chain }));
+    if ("error" in result) {
+      if (result.error === "unsupported_chain") {
+        console.error(`✖ Unsupported chain: ${result.chain}`);
+        console.error(`Supported chains: ${SUPPORTED_CHAINS.join(", ")}`);
+      } else {
+        console.log("✖ Failed to fetch balance");
+        if (result.error === "no_evm_account") {
+          console.log("No EVM account found.\n");
+        } else {
+          console.log("Authentication required.\n");
+        }
+        printAuthSignInInstructions();
+      }
+      process.exit(1);
+    }
+    console.log(`\nWallet Balances (${getChainLabel(result.chain)})`);
+    console.log("────────────────────────");
+    console.log(`USDC    $${formatTokenBalance(result.usdcRaw, 6)}`);
+    console.log(`ETH     ${formatAssetBalance(result.ethWei)}`);
+    console.log(`WETH    ${formatTokenBalance(result.wethRaw, 18)}`);
+    process.exit(0);
+  }
+
+  if (args[0] === "faucet") {
+    await runForCli(async () => {
+      const signedIn = await isSignedIn();
+      const config = getConfig();
+      const user = signedIn ? await getCurrentUser() : null;
+      const evmAddress = user ? getEvmAddress(user, config) : undefined;
+      const url = evmAddress ? `${FAUCET_URL}?address=${evmAddress}` : FAUCET_URL;
+      console.log("Base Sepolia faucet (select ETH or USDC on the site):");
+      console.log(`  ${url}`);
+    });
     process.exit(0);
   }
 
   console.log("Usage:");
-  console.log("  npx tsx src/cli.ts auth login <email>");
-  console.log("  npx tsx src/cli.ts auth verify <flowId> <6-digit-code>");
-  console.log("  npx tsx src/cli.ts status");
-  console.log("  npx tsx src/cli.ts address");
-  console.log("  npx tsx src/cli.ts balance [--chain base|base-sepolia]");
-  console.log("  npx tsx src/cli.ts faucet");
+  console.log(`  ${CLI_CMD} auth login <email>`);
+  console.log(`  ${CLI_CMD} auth verify <flowId> <6-digit-code>`);
+  console.log(`  ${CLI_CMD} auth logout`);
+  console.log(`  ${CLI_CMD} status`);
+  console.log(`  ${CLI_CMD} address`);
+  console.log(`  ${CLI_CMD} balance [--chain base|base-sepolia]`);
+  console.log(`  ${CLI_CMD} faucet`);
   process.exit(1);
 };
 

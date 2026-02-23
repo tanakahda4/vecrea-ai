@@ -1,20 +1,6 @@
-# Programmatic Wallet
+# CDP Core Examples
 
-A Wallet implementation designed for operation by AI Agents. This project provides programmatic access to wallet functionality through multiple interfaces, enabling AI-driven workflows and automation.
-
-## Secure Signing Without Managing Private Keys
-
-This project uses [@coinbase/cdp-core](https://www.npmjs.com/package/@coinbase/cdp-core) to enable **secure signing without managing private keys**. Instead of storing secrets locally, authentication is done via **email OTP** (One-Time Password):
-
-- **No private key management** — You don't need to generate, store, or handle private keys in your application
-- **Email OTP authentication** — When signing, a one-time code is sent to the user's email for verification
-- **Secure by design** — Keys are managed by CDP; your app never touches raw secrets, reducing exposure risk
-
-## Supported Interfaces
-
-- **CLI** — Direct command-line usage for scripts and automation
-- **AI Agents (SKILL.md)** — Integration with AI Agents using Cursor skills
-- **Vercel AI SDK** — SDK integration for building AI-powered applications with the Vercel AI SDK
+CLI examples for trying [@coinbase/cdp-core](https://www.npmjs.com/package/@coinbase/cdp-core) with TypeScript.
 
 This project supports both **Web** and **CLI** usage. When running in Node.js (CLI), `localStorage` is emulated via [localstorage-polyfill](https://www.npmjs.com/package/localstorage-polyfill) so the CDP SDK can store tokens. In the browser, the native `window.localStorage` is used.
 

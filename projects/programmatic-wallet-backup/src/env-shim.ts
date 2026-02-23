@@ -11,18 +11,13 @@ if (typeof globalThis.window === "undefined") {
       if (url) location.href = url;
     },
   };
-  (
-    globalThis as unknown as {
-      window: {
-        crypto: Crypto;
-        location: { href: string; search: string };
-        history: {
-          state: null;
-          replaceState: (a: unknown, b: string, c?: string) => void;
-        };
-      };
-    }
-  ).window = {
+  (globalThis as unknown as {
+    window: {
+      crypto: Crypto;
+      location: { href: string; search: string };
+      history: { state: null; replaceState: (a: unknown, b: string, c?: string) => void };
+    };
+  }).window = {
     crypto: webcrypto as Crypto,
     location,
     history,
@@ -40,7 +35,7 @@ if (
   typeof process.versions?.node === "string" &&
   typeof globalThis.localStorage !== "undefined"
 ) {
-  const { restoreAuthState } = await import("./helpers/auth-persistence");
+  const { restoreAuthState } = await import("./helper/auth-persistence");
   await restoreAuthState();
 }
 
