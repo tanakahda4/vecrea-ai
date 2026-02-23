@@ -1,0 +1,12 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/index.ts"],
+  "entryPointStrategy": "resolve",
+  "out": "docs/api",
+  "plugin": ["typedoc-plugin-markdown"],
+  "readme": "none",
+  "exclude": ["**/__tests__/**", "**/*.spec.ts"],
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "skipErrorChecking": true
+}

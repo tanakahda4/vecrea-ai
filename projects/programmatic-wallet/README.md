@@ -1,8 +1,8 @@
 # pwal
 
-Programmatic wallet CLI using [@coinbase/cdp-core](https://www.npmjs.com/package/@coinbase/cdp-core) with TypeScript.
+Programmatic wallet using [@coinbase/cdp-core](https://www.npmjs.com/package/@coinbase/cdp-core) with TypeScript.
 
-This project supports both **Web** and **CLI** usage. When running in Node.js (CLI), `localStorage` is emulated via [localstorage-polyfill](https://www.npmjs.com/package/localstorage-polyfill) so the CDP SDK can store tokens. In the browser, the native `window.localStorage` is used.
+Use pwal as a **CLI**, **SDK** (import and call from your code), **AI agent skill** (via SKILL.md in Cursor, Codex, CC, etc.), or in **cloud/serverless** environments (Vercel AI SDK and similar). When running in Node.js, `localStorage` is emulated via [localstorage-polyfill](https://www.npmjs.com/package/localstorage-polyfill) so the CDP SDK can store tokens. In the browser, the native `window.localStorage` is used.
 
 ## Setup
 
@@ -21,6 +21,8 @@ This project supports both **Web** and **CLI** usage. When running in Node.js (C
    Edit `.env` and replace `your-project-id` with your actual Project ID from the [CDP Portal](https://portal.cdp.coinbase.com).
 
 ## Usage
+
+### CLI
 
 Run the CLI with:
 
@@ -171,3 +173,17 @@ npx pwal x402 pay https://example.com/api/weather -c base-sepolia   # pay on Bas
 npx pwal --help
 npx pwal balance --help
 ```
+
+### SDK / Programmatic
+
+Import and call the run functions from your code:
+
+```typescript
+import { runAddress, runBalance, runSend, runX402Pay } from "pwal";
+```
+
+See [API Documentation](./docs/api/README.md) for the full reference.
+
+### AI Agents & Cloud
+
+pwal can be used in AI coding assistants (Cursor, Codex, CC) via SKILL.md, and in serverless/cloud environments (Vercel AI SDK, etc.). A separate project provides SKILL.md and deployment examples.
