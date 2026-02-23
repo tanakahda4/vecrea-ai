@@ -2,7 +2,7 @@ import { wrapFetchWithPayment, x402Client } from "@x402/fetch";
 import type { PaymentRequirements } from "@x402/core/types";
 import { registerExactEvmScheme } from "@x402/evm/exact/client";
 import { runAddress } from "@/commands/address";
-import { getPublicClient } from "@/helpers/chain";
+import { CHAIN_TO_EIP155, getPublicClient } from "@/helpers/chain";
 import { createCdpEvmSigner } from "@/helpers/cdp-evm-signer";
 
 const getAmount = (r: PaymentRequirements): bigint => {
@@ -94,26 +94,45 @@ export const runX402Pay = async (options: RunX402PayOptions): Promise<RunX402Pay
     if (verbose) console.error("[pwal] Paying from:", addressResult.address);
 
     const chain = (options.chain ?? "base").toLowerCase();
+    const targetNetwork = CHAIN_TO_EIP155[chain] ?? `eip155:${chain}`;
     const signer = createCdpEvmSigner(addressResult.address as `0x${string}`, getPublicClient(chain));
     const maxAmount = options.maxAmount;
+
+    const selectByChain = (accepts: PaymentRequirements[]): PaymentRequirements | undefined => {
+      const filtered = accepts.filter(
+        (a) =>
+          String((a as { network?: string }).network ?? "").toLowerCase() === chain ||
+          String((a as { network?: string }).network ?? "").toLowerCase() === targetNetwork
+      );
+      return filtered[0] ?? accepts[0];
+    };
 
     const client = new x402Client();
     registerExactEvmScheme(client, {
       signer,
+      networks: [targetNetwork as `eip155:${number}`],
+      paymentRequirementsSelector: (_version, accepts): PaymentRequirements => {
+        const byChain = selectByChain(accepts);
+        if (byChain === undefined || accepts.length === 0) {
+          throw new Error(
+            maxAmount !== undefined
+              ? `No payment option within max amount (${maxAmount} atomic units) (1000000 = $1.00 USDC)`
+              : "No payment option for the selected chain"
+          );
+        }
+        if (maxAmount !== undefined && getAmount(byChain) > maxAmount) {
+          throw new Error(
+            `No payment option within max amount (${maxAmount} atomic units)` +
+              ` (1000000 = $1.00 USDC)`
+          );
+        }
+        return byChain;
+      },
       ...(maxAmount !== undefined && {
         policies: [
           (_version, reqs): PaymentRequirements[] =>
             reqs.filter((r) => getAmount(r) <= maxAmount),
         ],
-        paymentRequirementsSelector: (_version, accepts): PaymentRequirements => {
-          if (accepts.length === 0) {
-            throw new Error(
-              `No payment option within max amount (${maxAmount} atomic units)` +
-                ` (1000000 = $1.00 USDC)`
-            );
-          }
-          return accepts[0];
-        },
       }),
     });
 

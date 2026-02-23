@@ -38,6 +38,7 @@ npx pwal [command] [options]
 | `status`                     | Show authentication status                                  |
 | `address`                    | Show EVM address                                            |
 | `balance`                    | Show wallet balances                                        |
+| `send <amount> <to>`        | Send USDC to address or ENS                                |
 | `faucet`                     | Show Base Sepolia faucet URL                                |
 | `x402 bazaar search <query>` | Search x402 bazaar by keyword (supports --network, --chain) |
 | `x402 bazaar list`           | List bazaar resources (supports --network, --chain)         |
@@ -59,6 +60,8 @@ npx pwal address
 npx pwal balance                    # Base mainnet (default)
 npx pwal balance --base-sepolia     # Base Sepolia testnet
 npx pwal balance --chain base-sepolia
+npx pwal send $1.00 0x...recipient...   # Send USDC
+npx pwal send 1000000 vitalik.eth       # Send 1 USDC to ENS
 npx pwal faucet
 
 # x402 Bazaar (discovery)

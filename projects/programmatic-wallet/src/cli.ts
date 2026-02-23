@@ -5,7 +5,13 @@ import {
   formatAssetBalance,
   formatTokenBalance,
 } from "./helpers/balance";
-import { getChainLabel, SUPPORTED_CHAINS } from "./helpers/chain";
+import {
+  getChainLabel,
+  getExplorerBaseUrl,
+  getRpcUrl,
+  getTxExplorerUrl,
+  SUPPORTED_CHAINS,
+} from "./helpers/chain";
 import { clearAuthState } from "./helpers/auth-persistence";
 import { getEmail } from "./helpers/user";
 import { runFaucet } from "./commands/faucet";
@@ -25,6 +31,7 @@ import {
 import { runX402Details } from "./commands/x402/details";
 import { runX402Pay } from "./commands/x402/pay";
 import { runSign } from "./commands/sign";
+import { runSend } from "./commands/send";
 import {
   formatBazaarTable,
   formatUsdcAmount,
@@ -229,6 +236,60 @@ program
     console.log(`WETH    ${formatTokenBalance(result.wethRaw, 18)}`);
     process.exit(0);
   });
+
+program
+  .command("send <amount> <to>")
+  .description("Send USDC to address or ENS (e.g. send $1.00 0x... or send 1000000 vitalik.eth)")
+  .addOption(
+    new Option("-c, --chain <chain>", "chain to use")
+      .default("base")
+      .choices(["base", "base-sepolia"])
+  )
+  .addOption(new Option("--json", "output as JSON"))
+  .addOption(new Option("-V, --verbose", "print transaction details before sending"))
+  .action(
+    async (amount: string, to: string, opts: { chain?: string; json?: boolean; verbose?: boolean }) => {
+      const chain = opts.chain ?? "base";
+      const result = await runForCli(() =>
+        runSend({ amount, to, chain, verbose: opts.verbose })
+      );
+      if ("error" in result) {
+        if (result.error === "not_authenticated" || result.error === "no_evm_account") {
+          console.log("✖ Authentication required.");
+          printAuthSignInInstructions();
+        } else if (result.error === "invalid_amount") {
+          console.log("✖", result.message);
+        } else if (result.error === "invalid_address") {
+          console.log("✖", result.message);
+        } else if (result.error === "unsupported_chain") {
+          console.error(`✖ Unsupported chain: ${result.chain}`);
+          console.error(`Supported chains: ${SUPPORTED_CHAINS.join(", ")}`);
+        } else {
+          console.log("✖ Send failed:", result.message);
+          const chain = result.chain;
+          if (chain) {
+            console.log(getRpcUrl(chain));
+            console.log(getExplorerBaseUrl(chain));
+          }
+        }
+        process.exit(1);
+      }
+      if (opts.json) {
+        console.log(
+          JSON.stringify(
+            { ...result, explorerUrl: getTxExplorerUrl(result.network, result.transactionHash) },
+            null,
+            2
+          )
+        );
+      } else {
+        const url = getTxExplorerUrl(result.network, result.transactionHash);
+        console.log(`✓ Sent. Transaction: ${result.transactionHash}`);
+        console.log(url);
+      }
+      process.exit(0);
+    }
+  );
 
 const x402 = program.command("x402").description("x402 Bazaar discovery commands");
 

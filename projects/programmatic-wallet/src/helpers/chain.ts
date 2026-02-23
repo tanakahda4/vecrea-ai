@@ -9,6 +9,12 @@ export const EIP155_TO_CHAIN: Record<string, string> = {
   "eip155:8453": "base",
 };
 
+/** Maps chain names to EIP-155 (for x402 network filter). */
+export const CHAIN_TO_EIP155: Record<string, string> = {
+  "base-sepolia": "eip155:84532",
+  base: "eip155:8453",
+};
+
 const CHAIN_CONFIG: Record<
   string,
   { chain: typeof base | typeof baseSepolia; usdc: Address; label: string }
@@ -62,7 +68,37 @@ export const getUsdcAddress = (chain: string): Address => {
   return config.usdc;
 };
 
+/** Returns chain ID for the given chain name. */
+export const getChainId = (chain: string): number => {
+  const config =
+    (CHAIN_CONFIG as Record<string, (typeof CHAIN_CONFIG)["base"]>)[chain] ??
+    CHAIN_CONFIG.base;
+  return config.chain.id;
+};
+
 export const getWethAddress = (): Address => WETH_ADDRESS;
+
+/** Returns block explorer base URL for the chain. */
+export const getExplorerBaseUrl = (chain: string): string => {
+  const config =
+    (CHAIN_CONFIG as Record<string, (typeof CHAIN_CONFIG)["base"]>)[chain] ??
+    CHAIN_CONFIG.base;
+  return config.chain.blockExplorers?.default?.url ?? "https://basescan.org";
+};
+
+/** Returns RPC URL for the chain. */
+export const getRpcUrl = (chain: string): string => {
+  const config =
+    (CHAIN_CONFIG as Record<string, (typeof CHAIN_CONFIG)["base"]>)[chain] ??
+    CHAIN_CONFIG.base;
+  const http = config.chain.rpcUrls?.default?.http;
+  return (Array.isArray(http) ? http[0] : undefined) ?? "https://mainnet.base.org";
+};
+
+/** Returns block explorer URL for a transaction hash. */
+export const getTxExplorerUrl = (chain: string, txHash: string): string => {
+  return `${getExplorerBaseUrl(chain)}/tx/${txHash}`;
+};
 
 /** Returns viem chain for wallet client (x402 pay). */
 export const getChainForWallet = (chainName: string = "base") => {
