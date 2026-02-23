@@ -30,7 +30,6 @@ import {
 } from "./commands/x402/bazaar";
 import { runX402Details } from "./commands/x402/details";
 import { runX402Pay } from "./commands/x402/pay";
-import { runSign } from "./commands/sign";
 import { runSend } from "./commands/send";
 import {
   formatBazaarTable,
@@ -144,58 +143,6 @@ program
     console.log(result.address);
     process.exit(0);
   });
-
-program
-  .command("sign")
-  .description("Sign EIP-3009 TransferWithAuthorization (sample values when omitted)")
-  .addOption(new Option("-f, --from <address>", "sender address (default: current user)"))
-  .addOption(new Option("-t, --to <address>", "recipient address (default: same as from)"))
-  .addOption(new Option("-v, --value <amount>", "amount in atomic units (default: 1000)"))
-  .addOption(new Option("-a, --asset <address>", "token contract address (default: USDC)"))
-  .addOption(
-    new Option("-c, --chain <chain>", "chain for domain")
-      .default("base")
-      .choices(["base", "base-sepolia"])
-  )
-  .addOption(new Option("--json", "output as JSON"))
-  .addOption(new Option("-V, --verbose", "show detailed error info"))
-  .action(
-    async (opts: {
-      from?: string;
-      to?: string;
-      value?: string;
-      asset?: string;
-      chain?: string;
-      json?: boolean;
-      verbose?: boolean;
-    }) => {
-      const result = await runForCli(() =>
-        runSign({
-          from: opts.from,
-          to: opts.to,
-          value: opts.value,
-          asset: opts.asset,
-          chain: opts.chain,
-          verbose: opts.verbose,
-        })
-      );
-      if ("error" in result) {
-        if (result.error === "not_authenticated" || result.error === "no_evm_account") {
-          console.log("✖ Authentication required.");
-          printAuthSignInInstructions();
-        } else {
-          console.log("✖ Sign failed:", result.message);
-        }
-        process.exit(1);
-      }
-      if (opts.json) {
-        console.log(JSON.stringify({ signature: result.signature }, null, 2));
-      } else {
-        console.log(result.signature);
-      }
-      process.exit(0);
-    }
-  );
 
 program
   .command("balance")
