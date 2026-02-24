@@ -1,5 +1,5 @@
 {
-  "name": "agentic-wallet-skills",
+  "name": "wal-sdk-skills",
   "private": true,
   "scripts": {
     "bump-awal": "node scripts/bump-awal.js"

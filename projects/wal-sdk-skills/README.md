@@ -20,7 +20,7 @@
 Install with [Vercel's Skills CLI](https:/skills.sh):
 
 ```bash
-npx skills add coinbase/agentic-wallet-skills
+npx skills add coinbase/wal-sdk-skills
 ```
 
 ## Usage
