@@ -394,7 +394,11 @@ class RetailStore:
           root=ShippingDestinationResponse(id=dest_id, **address.model_dump())
       )
 
-      fulfillment_options = self._get_fulfillment_options()
+      addr_dump = address.model_dump()
+      country_code = addr_dump.get("address_country") or addr_dump.get(
+          "addressCountry"
+      )
+      fulfillment_options = self._get_fulfillment_options(country_code)
       option_ids = [o.id for o in fulfillment_options]
       selected_option_id = (
           shipping_option_id
@@ -483,8 +487,15 @@ class RetailStore:
     del self._checkouts[checkout_id]
     return checkout
 
-  def _get_fulfillment_options(self) -> list[FulfillmentOptionResponse]:
-    """Returns a list of available fulfillment options."""
+  def _get_fulfillment_options(
+      self, country_code: str | None = None
+  ) -> list[FulfillmentOptionResponse]:
+    """Returns a list of available fulfillment options.
+
+    Shipping cost by country: US $5/$10, Canada $7/$12 (standard/express).
+    """
+    standard_cents = 700 if country_code == "CA" else 500
+    express_cents = 1200 if country_code == "CA" else 1000
     return [
         FulfillmentOptionResponse(
             id="standard",
@@ -492,9 +503,9 @@ class RetailStore:
             description="Arrives in 4-5 days",
             carrier="USPS",
             totals=[
-                Total(type="subtotal", display_text="Subtotal", amount=500),
+                Total(type="subtotal", display_text="Subtotal", amount=standard_cents),
                 Total(type="tax", display_text="Tax", amount=0),
-                Total(type="total", display_text="Total", amount=500),
+                Total(type="total", display_text="Total", amount=standard_cents),
             ],
         ),
         FulfillmentOptionResponse(
@@ -503,9 +514,9 @@ class RetailStore:
             description="Arrives in 1-2 days",
             carrier="FedEx",
             totals=[
-                Total(type="subtotal", display_text="Subtotal", amount=1000),
+                Total(type="subtotal", display_text="Subtotal", amount=express_cents),
                 Total(type="tax", display_text="Tax", amount=0),
-                Total(type="total", display_text="Total", amount=1000),
+                Total(type="total", display_text="Total", amount=express_cents),
             ],
         ),
     ]

@@ -23,15 +23,45 @@ const merchantInfo = {
 };
 
 const SHIPPING_OPTIONS = {
-  standard: {id: 'shipping-standard', cost: 5.0, label: 'Standard', description: 'Delivered in 5-7 business days.'},
-  express: {id: 'shipping-express', cost: 10.0, label: 'Express', description: 'Delivered in 1-2 business days.'},
+  standard: {id: 'shipping-standard', label: 'Standard', description: 'Delivered in 5-7 business days.'},
+  express: {id: 'shipping-express', label: 'Express', description: 'Delivered in 1-2 business days.'},
 } as const;
 
 const DEFAULT_SHIPPING_OPTION_ID = SHIPPING_OPTIONS.standard.id;
 
-const getShippingCost = (optionId: string): number => {
-  const option = Object.values(SHIPPING_OPTIONS).find((o) => o.id === optionId);
-  return option?.cost ?? SHIPPING_OPTIONS.standard.cost;
+/** Shipping cost by country: US $5/$10, Canada $7/$12 (standard/express). */
+const SHIPPING_COST_BY_COUNTRY: Record<string, {standard: number; express: number}> = {
+  US: {standard: 5, express: 10},
+  CA: {standard: 7, express: 12},
+};
+
+const DEFAULT_COUNTRY = 'US';
+
+const getShippingCost = (optionId: string, countryCode: string): number => {
+  const costs = SHIPPING_COST_BY_COUNTRY[countryCode] ?? SHIPPING_COST_BY_COUNTRY[DEFAULT_COUNTRY];
+  const isStandard = optionId === SHIPPING_OPTIONS.standard.id;
+  return isStandard ? costs.standard : costs.express;
+};
+
+const getShippingOptionParameters = (
+  countryCode: string,
+): google.payments.api.ShippingOptionParameters => {
+  const costs = SHIPPING_COST_BY_COUNTRY[countryCode] ?? SHIPPING_COST_BY_COUNTRY[DEFAULT_COUNTRY];
+  return {
+    defaultSelectedOptionId: DEFAULT_SHIPPING_OPTION_ID,
+    shippingOptions: [
+      {
+        id: SHIPPING_OPTIONS.standard.id,
+        label: `$${costs.standard.toFixed(2)}: ${SHIPPING_OPTIONS.standard.label} shipping`,
+        description: SHIPPING_OPTIONS.standard.description,
+      },
+      {
+        id: SHIPPING_OPTIONS.express.id,
+        label: `$${costs.express.toFixed(2)}: ${SHIPPING_OPTIONS.express.label} shipping`,
+        description: SHIPPING_OPTIONS.express.description,
+      },
+    ],
+  };
 };
 
 const baseGooglePayRequest = {
@@ -100,22 +130,6 @@ const getTransactionInfo = (
     displayItems,
   };
 };
-
-const getShippingOptionParameters = (): google.payments.api.ShippingOptionParameters => ({
-  defaultSelectedOptionId: DEFAULT_SHIPPING_OPTION_ID,
-  shippingOptions: [
-    {
-      id: SHIPPING_OPTIONS.standard.id,
-      label: `$${SHIPPING_OPTIONS.standard.cost.toFixed(2)}: ${SHIPPING_OPTIONS.standard.label} shipping`,
-      description: SHIPPING_OPTIONS.standard.description,
-    },
-    {
-      id: SHIPPING_OPTIONS.express.id,
-      label: `$${SHIPPING_OPTIONS.express.cost.toFixed(2)}: ${SHIPPING_OPTIONS.express.label} shipping`,
-      description: SHIPPING_OPTIONS.express.description,
-    },
-  ],
-});
 
 export interface GooglePayAddress {
   name?: string;
@@ -210,6 +224,8 @@ const GooglePayButton: React.FC<GooglePayButtonProps> = ({
       parseFloat(taxAmount) ||
       (subtotal > 0 ? Math.round(subtotal * 100 * 0.1) / 100 : 0);
 
+    let lastKnownCountry: string | null = null;
+
     const onPaymentDataChanged = (
       intermediatePaymentData: google.payments.api.IntermediatePaymentData,
     ): google.payments.api.PaymentDataRequestUpdate => {
@@ -222,26 +238,44 @@ const GooglePayButton: React.FC<GooglePayButtonProps> = ({
         callbackTrigger === 'INITIALIZE' ||
         callbackTrigger === 'SHIPPING_ADDRESS'
       ) {
-        if (shippingAddress) {
-          paymentDataRequestUpdate.newShippingOptionParameters =
-            getShippingOptionParameters();
-          const shippingCost = getShippingCost(DEFAULT_SHIPPING_OPTION_ID);
+        const addrCountry = shippingAddress?.countryCode;
+        if (addrCountry) {
+          lastKnownCountry = addrCountry;
+          if (callbackTrigger === 'INITIALIZE') {
+            console.log('[GooglePay] INITIALIZE: address received', {
+              countryCode: addrCountry,
+              shippingCost: getShippingCost(DEFAULT_SHIPPING_OPTION_ID, addrCountry),
+            });
+          }
+        } else if (callbackTrigger === 'INITIALIZE') {
+          console.log('[GooglePay] INITIALIZE: no address (user has not selected yet)');
+        }
+        if (shippingAddress || callbackTrigger === 'INITIALIZE') {
+          const shippingCost = lastKnownCountry
+            ? getShippingCost(DEFAULT_SHIPPING_OPTION_ID, lastKnownCountry)
+            : 0;
+          if (lastKnownCountry) {
+            paymentDataRequestUpdate.newShippingOptionParameters =
+              getShippingOptionParameters(lastKnownCountry);
+          }
           paymentDataRequestUpdate.newTransactionInfo = getTransactionInfo(
             subtotal,
             tax,
             shippingCost,
             currencyCode,
-            countryCode,
+            lastKnownCountry ?? DEFAULT_COUNTRY,
           );
         }
       } else if (callbackTrigger === 'SHIPPING_OPTION' && shippingOptionData) {
-        const shippingCost = getShippingCost(shippingOptionData.id);
+        const shippingCost = lastKnownCountry
+          ? getShippingCost(shippingOptionData.id, lastKnownCountry)
+          : 0;
         paymentDataRequestUpdate.newTransactionInfo = getTransactionInfo(
           subtotal,
           tax,
           shippingCost,
           currencyCode,
-          countryCode,
+          lastKnownCountry ?? DEFAULT_COUNTRY,
         );
       }
 
@@ -281,7 +315,7 @@ const GooglePayButton: React.FC<GooglePayButtonProps> = ({
         emailRequired: true,
         shippingAddressRequired: true,
         shippingAddressParameters: {
-          allowedCountryCodes: [countryCode],
+          allowedCountryCodes: ['US', 'CA'],
         },
         shippingOptionRequired: true,
       } as unknown as google.payments.api.PaymentDataRequest;
@@ -302,8 +336,9 @@ const GooglePayButton: React.FC<GooglePayButtonProps> = ({
           }
         : undefined;
       const shippingOptionId = res.shippingOptionData?.id;
+      const addressCountry = res.shippingAddress?.countryCode ?? DEFAULT_COUNTRY;
       const shippingCost = shippingOptionId
-        ? getShippingCost(shippingOptionId)
+        ? getShippingCost(shippingOptionId, addressCountry)
         : undefined;
 
       if (token) {
