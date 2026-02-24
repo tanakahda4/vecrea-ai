@@ -23,6 +23,7 @@ interface CheckoutProps {
   onCompletePayment?: (checkout: Checkout) => void;
   paymentInstrument?: PaymentInstrument | null;
   onConfirmPayment?: (paymentInstrument: PaymentInstrument) => void;
+  showCartSummary?: boolean;
 }
 
 type AddressLike = Record<
@@ -117,6 +118,7 @@ const CheckoutComponent: React.FC<CheckoutProps> = ({
   onCompletePayment,
   paymentInstrument,
   onConfirmPayment,
+  showCartSummary = true,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
@@ -140,111 +142,138 @@ const CheckoutComponent: React.FC<CheckoutProps> = ({
   };
 
   const grandTotal = getTotal('total');
+  const isCompleted = checkout.status === 'completed';
+  const orderId = checkout.order?.id ?? checkout.order_id;
+  const paymentFromCheckout = checkout.payment?.instruments?.find(
+    (inst: any) =>
+      inst.root?.id === checkout.payment?.selected_instrument_id ||
+      inst.id === checkout.payment?.selected_instrument_id,
+  ) ?? checkout.payment?.instruments?.[0];
+  const paymentDisplay =
+    paymentInstrument ??
+    (paymentFromCheckout && {
+      brand: paymentFromCheckout.brand ?? paymentFromCheckout.root?.brand ?? 'Card',
+      last_digits: paymentFromCheckout.last_digits ?? paymentFromCheckout.root?.last_digits ?? '****',
+    });
 
   return (
     <div className="flex w-full my-2 justify-start">
       <div className="max-w-md bg-white rounded-lg shadow-lg p-4 border border-gray-200">
         <h3 className="text-md font-bold text-gray-800 border-b pb-2 mb-3 flex items-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 mr-2"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}>
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-            />
-          </svg>
-          {checkout.status === 'completed'
-            ? 'Order Confirmed'
-            : 'Checkout Summary'}
+          {showCartSummary ? (
+            <>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+              </svg>
+              {isCompleted ? 'Order Confirmed' : 'Checkout Summary'}
+            </>
+          ) : (
+            'Confirm Payment'
+          )}
         </h3>
-        {checkout.order?.id && (
-          <p className="border-b pt-3 pb-3 text-sm space-y-2">
-            Order ID: {checkout.order.id}
+        {showCartSummary && orderId && (
+          <p className="border-b pt-3 pb-3 text-sm font-semibold text-gray-800">
+            Order ID: {orderId}
           </p>
         )}
-        {customerDetails && (
+        {showCartSummary && customerDetails && (
           <div className="border-b pt-3 pb-3 text-sm space-y-1">
             <p className="font-semibold text-gray-700">Customer details</p>
             <p className="text-gray-600">{customerDetails}</p>
           </div>
         )}
-        <div className="pt-3 space-y-3">
-          {itemsToShow.map((lineItem: any) => (
-            <div key={lineItem.id} className="flex items-center text-sm">
-              <img
-                src={lineItem.item.image_url}
-                alt={lineItem.item.id}
-                className="w-16 h-16 object-cover rounded-md mr-4"
-              />
-              <div className="flex-grow">
-                <p className="font-semibold text-gray-700">
-                  {lineItem.item.title}
-                </p>
-                <p className="text-gray-500">Qty: {lineItem.quantity}</p>
-              </div>
-              <p className="text-gray-800 font-medium pl-2">
-                {formatCurrency(
-                  getItemTotal(lineItem).amount,
-                  checkout.currency,
-                )}
-              </p>
+        {showCartSummary && (
+          <>
+            <div className="pt-3 space-y-3">
+              {itemsToShow.map((lineItem: any) => (
+                <div key={lineItem.id} className="flex items-center text-sm">
+                  <img
+                    src={lineItem.item.image_url}
+                    alt={lineItem.item.id}
+                    className="w-16 h-16 object-cover rounded-md mr-4"
+                  />
+                  <div className="flex-grow">
+                    <p className="font-semibold text-gray-700">
+                      {lineItem.item.title}
+                    </p>
+                    <p className="text-gray-500">Qty: {lineItem.quantity}</p>
+                  </div>
+                  <p className="text-gray-800 font-medium pl-2">
+                    {formatCurrency(
+                      getItemTotal(lineItem).amount,
+                      checkout.currency,
+                    )}
+                  </p>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        {checkout.line_items.length > 5 && (
-          <div className="mt-3">
-            <button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="text-sm text-blue-600 hover:underline w-full text-center">
-              {isExpanded
-                ? 'Show less'
-                : `Show ${checkout.line_items.length - 5} more items`}
-            </button>
-          </div>
-        )}
-        <div className="border-t mt-4 pt-3 text-sm space-y-2">
-          {checkout.totals
-            .filter((t) => t.type !== 'total' && t.amount > 0)
-            .map((total) => (
-              <div
-                key={total.type}
-                className="flex justify-between items-center">
-                <span className="text-gray-600">{total.display_text}</span>
-                <span className="text-gray-800 font-medium">
-                  {formatCurrency(total.amount, checkout.currency)}
-                </span>
+            {checkout.line_items.length > 5 && (
+              <div className="mt-3">
+                <button
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="text-sm text-blue-600 hover:underline w-full text-center">
+                  {isExpanded
+                    ? 'Show less'
+                    : `Show ${checkout.line_items.length - 5} more items`}
+                </button>
               </div>
-            ))}
-        </div>
-        {grandTotal && (
-          <div className="border-t mt-4 pt-3">
-            <div className="flex justify-between items-center font-bold text-md">
-              <span>{grandTotal.display_text}</span>
-              <span>
-                {formatCurrency(grandTotal.amount, checkout.currency)}
-              </span>
-            </div>
-          </div>
+            )}
+          </>
         )}
-        {paymentInstrument && (
+        {showCartSummary && (
+          <>
+            <div className="border-t mt-4 pt-3 text-sm space-y-2">
+              {checkout.totals
+                .filter((t) => t.type !== 'total' && t.amount > 0)
+                .map((total) => (
+                  <div
+                    key={total.type}
+                    className="flex justify-between items-center">
+                    <span className="text-gray-600">{total.display_text}</span>
+                    <span className="text-gray-800 font-medium">
+                      {formatCurrency(total.amount, checkout.currency)}
+                    </span>
+                  </div>
+                ))}
+            </div>
+            {grandTotal && (
+              <div className="border-t mt-4 pt-3">
+                <div className="flex justify-between items-center font-bold text-md">
+                  <span>{grandTotal.display_text}</span>
+                  <span>
+                    {formatCurrency(grandTotal.amount, checkout.currency)}
+                  </span>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+        {paymentDisplay && (
           <div className="border-t mt-4 pt-3 pb-3 text-sm">
             <p className="font-semibold text-gray-700 mb-1">
               Payment method
             </p>
             <p className="text-gray-600">
-              {paymentInstrument.brand.toUpperCase()} ending in{' '}
-              {paymentInstrument.last_digits}
+              {String(paymentDisplay.brand ?? 'Card').toUpperCase()} ending in{' '}
+              {paymentDisplay.last_digits ?? '****'}
             </p>
           </div>
         )}
-        <p className="text-xs text-gray-400 mt-3 text-center">
-          Checkout ID: {checkout.id}
-        </p>
+        {showCartSummary && (
+          <p className="text-xs text-gray-400 mt-3 text-center">
+            Checkout ID: {checkout.id}
+          </p>
+        )}
         {checkout.status !== 'completed' && (
           <div className="border-t mt-4 pt-4 space-y-3">
             {onCheckout && !paymentInstrument && (

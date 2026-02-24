@@ -103,6 +103,7 @@ export interface Checkout {
   status: string;
   totals: CheckoutTotal[];
   order_id?: string;
+  order?: {id?: string; permalink_url?: string};
   order_permalink_url?: string;
   payment?: any;
   buyer?: {email?: string; root?: {email?: string}};

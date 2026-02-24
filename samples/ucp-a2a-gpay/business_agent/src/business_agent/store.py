@@ -323,9 +323,13 @@ class RetailStore:
 
     final_total = subtotal - discount
 
+    # Always add tax (US e-commerce standard)
+    tax = round(subtotal * 0.1)  # assume 10% flat tax
+    totals.append(Total(type="tax", display_text="Tax", amount=tax))
+    final_total += tax
+
     if isinstance(checkout, FulfillmentCheckout) and checkout.fulfillment:
-      # add taxes and shipping if checkout has fulfillment address
-      tax = round(subtotal * 0.1)  # assume 10% flat tax
+      # add shipping if checkout has fulfillment address
       selected_fulfillment_option = None
 
       # Find selected option in the fulfillment structure
@@ -345,11 +349,17 @@ class RetailStore:
           if total.type == "total":
             shipping = total.amount
             break
-        totals.append(
-            Total(type="fulfillment", display_text="Shipping", amount=shipping)
+        shipping_label = (
+            selected_fulfillment_option.title or "Shipping"
         )
-        totals.append(Total(type="tax", display_text="Tax", amount=tax))
-        final_total += shipping + tax
+        totals.append(
+            Total(
+                type="fulfillment",
+                display_text=shipping_label,
+                amount=shipping,
+            )
+        )
+        final_total += shipping
 
     totals.append(Total(type="total", display_text="Total", amount=final_total))
     checkout.totals = totals
@@ -358,13 +368,18 @@ class RetailStore:
     )
 
   def add_delivery_address(
-      self, checkout_id: str, address: PostalAddress
+      self,
+      checkout_id: str,
+      address: PostalAddress,
+      shipping_option_id: str | None = None,
   ) -> Checkout:
     """Adds a delivery address to the checkout.
 
     Args:
         checkout_id (str): ID of the checkout to update.
         address (CheckoutPostalAddress): The delivery address.
+        shipping_option_id (str | None): Shipping option from GPay ('standard',
+            'express'). Defaults to first option if not provided.
 
     Returns:
         Checkout: The updated checkout object.
@@ -380,7 +395,12 @@ class RetailStore:
       )
 
       fulfillment_options = self._get_fulfillment_options()
-      selected_option_id = fulfillment_options[0].id
+      option_ids = [o.id for o in fulfillment_options]
+      selected_option_id = (
+          shipping_option_id
+          if shipping_option_id in option_ids
+          else fulfillment_options[0].id
+      )
 
       line_item_ids = [li.item.id for li in checkout.line_items]
 

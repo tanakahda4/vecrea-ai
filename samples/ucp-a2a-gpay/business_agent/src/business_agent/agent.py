@@ -216,6 +216,7 @@ def update_customer_details(
     address_country: Optional[str],
     extended_address: Optional[str] = None,
     email: Optional[str] = None,
+    shipping_option_id: Optional[str] = None,
 ) -> dict:
   """Adds delivery address to the checkout.
 
@@ -233,6 +234,8 @@ def update_customer_details(
       extended_address: The extended address of the postal address. For example,
         a suite number
       email: The email address of the recipient.
+      shipping_option_id: Shipping option ID from Google Pay (e.g. 'standard',
+        'express').
 
   Returns:
       dict: Returns the response from the tool with success or error status.
@@ -256,7 +259,9 @@ def update_customer_details(
       last_name=last_name,
   )
 
-  checkout = store.add_delivery_address(checkout_id, address)
+  checkout = store.add_delivery_address(
+      checkout_id, address, shipping_option_id=shipping_option_id
+  )
 
   if email:
     checkout.buyer = Buyer(email=email)
@@ -419,7 +424,8 @@ root_agent = Agent(
         " products to match the user request. When the user sends a message"
         " with action 'update_customer_details' and structured data (email,"
         " first_name, last_name, street_address, address_locality,"
-        " address_region, postal_code, address_country), invoke"
+        " address_region, postal_code, address_country, shipping_option_id),"
+        " invoke"
         " update_customer_details with those parameters. When the"
         " start_payment tool indicates that customer details are required,"
         " relay the message to the user. The client will show payment method"

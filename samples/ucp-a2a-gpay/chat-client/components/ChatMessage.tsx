@@ -39,11 +39,15 @@ interface ChatMessageProps {
     brand?: string;
     email?: string;
     shippingAddress?: Record<string, string | undefined>;
+    shippingOptionId?: string;
+    shippingCost?: number;
   }) => void;
+  onGooglePayReady?: () => void;
   onConfirmPayment?: (paymentInstrument: PaymentInstrument) => void;
   onCompletePayment?: (checkout: Checkout) => void;
   isLastCheckout?: boolean;
   lastCheckout?: Checkout | null;
+  hasPaymentInstrumentInMessages?: boolean;
 }
 
 function TypingIndicator() {
@@ -72,10 +76,12 @@ function ChatMessageComponent({
   onCheckout,
   onSelectPaymentMethod,
   onGooglePayComplete,
+  onGooglePayReady,
   onConfirmPayment,
   onCompletePayment,
   isLastCheckout,
   lastCheckout,
+  hasPaymentInstrumentInMessages,
 }: ChatMessageProps) {
   const isUser = message.sender === Sender.USER;
 
@@ -121,11 +127,14 @@ function ChatMessageComponent({
           </div>
         )}
 
-        {message.paymentMethods && onSelectPaymentMethod && (
+        {message.paymentMethods &&
+          onSelectPaymentMethod &&
+          !hasPaymentInstrumentInMessages && (
           <PaymentMethodSelector
             paymentMethods={message.paymentMethods}
             onSelect={onSelectPaymentMethod}
             onGooglePayComplete={onGooglePayComplete}
+            onGooglePayReady={onGooglePayReady}
             checkout={lastCheckout}
           />
         )}
@@ -135,6 +144,7 @@ function ChatMessageComponent({
             checkout={lastCheckout}
             paymentInstrument={message.paymentInstrument}
             onConfirmPayment={onConfirmPayment}
+            showCartSummary={true}
           />
         )}
 
@@ -159,8 +169,8 @@ function ChatMessageComponent({
         )}
 
         {message.checkout &&
-          !message.paymentMethods &&
-          !message.paymentInstrument && (
+          !message.paymentInstrument &&
+          !hasPaymentInstrumentInMessages && (
             <CheckoutComponent
               checkout={message.checkout}
               onCheckout={isLastCheckout ? onCheckout : undefined}

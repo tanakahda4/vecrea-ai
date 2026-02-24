@@ -20,7 +20,7 @@ import Header from './components/Header';
 import {appConfig} from './config';
 import {CredentialProviderProxy} from './mocks/credentialProviderProxy';
 
-import {ChatMessage, PaymentInstrument, Product, Sender} from './types';
+import {ChatMessage, Checkout, PaymentInstrument, Product, Sender} from './types';
 
 const initialMessage: ChatMessage = {
   sender: Sender.MODEL,
@@ -39,12 +39,70 @@ function App() {
   const [taskId, setTaskId] = useState<string | null>(null);
   const credentialProvider = useRef(new CredentialProviderProxy());
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const gpayShippingRef = useRef<{
+    shippingOptionId?: string;
+    shippingCost?: number;
+  } | null>(null);
 
-  // Scroll to the bottom when new messages are added
-  useEffect(() => {
+  const applyGpayShippingToCheckout = (
+    checkout: Checkout,
+    shipping: {shippingOptionId?: string; shippingCost?: number},
+  ): Checkout => {
+    if (shipping.shippingCost == null) return checkout;
+    const subtotal =
+      checkout.totals.find((t) => t.type === 'subtotal')?.amount ?? 0;
+    const tax = checkout.totals.find((t) => t.type === 'tax')?.amount ?? 0;
+    const shippingAmountCents = Math.round(shipping.shippingCost * 100);
+    const newTotal = subtotal + tax + shippingAmountCents;
+    const shippingLabel =
+      shipping.shippingOptionId === 'shipping-express'
+        ? 'Express shipping'
+        : 'Standard shipping';
+
+    const newTotals = checkout.totals.map((t) => {
+      if (t.type === 'fulfillment' || t.type === 'shipping') {
+        return {...t, amount: shippingAmountCents, display_text: shippingLabel};
+      }
+      if (t.type === 'total') {
+        return {...t, amount: newTotal};
+      }
+      return t;
+    });
+
+    const hasShipping = newTotals.some(
+      (t) => t.type === 'fulfillment' || t.type === 'shipping',
+    );
+    if (!hasShipping) {
+      const totalIdx = newTotals.findIndex((t) => t.type === 'total');
+      const insertIdx = totalIdx >= 0 ? totalIdx : newTotals.length;
+      newTotals.splice(insertIdx, 0, {
+        type: 'shipping',
+        display_text: shippingLabel,
+        amount: shippingAmountCents,
+      });
+    }
+
+    return {...checkout, totals: newTotals};
+  };
+
+  const scrollToBottom = () => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop =
         chatContainerRef.current.scrollHeight;
+    }
+  };
+
+  // Scroll to the bottom when new messages are added
+  useEffect(() => {
+    scrollToBottom();
+    const hasPaymentMethods = messages.some((m) => (m.paymentMethods?.length ?? 0) > 0);
+    if (hasPaymentMethods) {
+      const t1 = setTimeout(scrollToBottom, 300);
+      const t2 = setTimeout(scrollToBottom, 800);
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+      };
     }
   }, [messages]);
 
@@ -176,15 +234,72 @@ function App() {
       postalCode?: string;
       countryCode?: string;
     };
+    shippingOptionId?: string;
+    shippingCost?: number;
   }) => {
-    setMessages((prev) => prev.filter((msg) => !msg.paymentMethods));
+    setMessages((prev) => {
+      let next = prev.filter((msg) => !msg.paymentMethods);
 
-    const userActionMessage: ChatMessage = {
-      sender: Sender.USER,
-      text: 'User selected Google Pay',
-      isUserAction: true,
-    };
-    setMessages((prev) => [...prev, userActionMessage]);
+      if (data.shippingCost != null) {
+        const lastCheckoutIdx = next.map((m) => !!m.checkout).lastIndexOf(true);
+        if (lastCheckoutIdx >= 0) {
+          const msg = next[lastCheckoutIdx];
+          if (msg.checkout) {
+            const subtotal =
+              msg.checkout.totals.find((t) => t.type === 'subtotal')?.amount ??
+              0;
+            const tax =
+              msg.checkout.totals.find((t) => t.type === 'tax')?.amount ?? 0;
+            const shippingAmountCents = Math.round(data.shippingCost * 100);
+            const newTotal = subtotal + tax + shippingAmountCents;
+            const shippingLabel =
+              data.shippingOptionId === 'shipping-express'
+                ? 'Express shipping'
+                : 'Standard shipping';
+
+            const newTotals = msg.checkout.totals.map((t) => {
+              if (t.type === 'fulfillment' || t.type === 'shipping') {
+                return {
+                  ...t,
+                  amount: shippingAmountCents,
+                  display_text: shippingLabel,
+                };
+              }
+              if (t.type === 'total') {
+                return {...t, amount: newTotal};
+              }
+              return t;
+            });
+
+            const hasShipping = newTotals.some(
+              (t) => t.type === 'fulfillment' || t.type === 'shipping',
+            );
+            if (!hasShipping) {
+              const totalIdx = newTotals.findIndex((t) => t.type === 'total');
+              const insertIdx = totalIdx >= 0 ? totalIdx : newTotals.length;
+              newTotals.splice(insertIdx, 0, {
+                type: 'shipping',
+                display_text: shippingLabel,
+                amount: shippingAmountCents,
+              });
+            }
+
+            next = [...next];
+            next[lastCheckoutIdx] = {
+              ...msg,
+              checkout: {...msg.checkout, totals: newTotals},
+            };
+          }
+        }
+      }
+
+      const userActionMessage: ChatMessage = {
+        sender: Sender.USER,
+        text: 'User selected Google Pay',
+        isUserAction: true,
+      };
+      return [...next, userActionMessage];
+    });
 
     const paymentInstrument: PaymentInstrument = {
       id: 'gpay_' + crypto.randomUUID(),
@@ -199,11 +314,25 @@ function App() {
     };
 
     if (data.email || data.shippingAddress) {
+      gpayShippingRef.current =
+        data.shippingCost != null
+          ? {
+              shippingOptionId: data.shippingOptionId,
+              shippingCost: data.shippingCost,
+            }
+          : null;
+
       const addr = data.shippingAddress;
       const {first_name, last_name} = addr?.name
         ? parseNameToFirstLast(addr.name)
         : {first_name: 'Guest', last_name: ''};
 
+      const shippingOptionId =
+        data.shippingOptionId === 'shipping-express'
+          ? 'express'
+          : data.shippingOptionId === 'shipping-standard'
+            ? 'standard'
+            : undefined;
       const actionPayload = JSON.stringify({
         action: 'update_customer_details',
         email: data.email ?? '',
@@ -215,26 +344,48 @@ function App() {
         address_region: addr?.administrativeArea ?? '',
         postal_code: addr?.postalCode ?? '',
         address_country: addr?.countryCode ?? 'US',
+        shipping_option_id: shippingOptionId ?? 'standard',
       });
-      await handleSendMessage(actionPayload, {isUserAction: true});
+      await handleSendMessage(actionPayload, {
+        isUserAction: true,
+        skipPaymentMethods: true,
+        skipGpayShippingApply: true,
+      });
     }
 
-    const paymentInstrumentMessage: ChatMessage = {
-      sender: Sender.MODEL,
-      text: '',
-      paymentInstrument,
-    };
-    setMessages((prev) => [...prev, paymentInstrumentMessage]);
+    setMessages((prev) => {
+      const lastIdx = prev.length - 1;
+      const last = lastIdx >= 0 ? prev[lastIdx] : null;
+      const canMerge =
+        last?.sender === Sender.MODEL &&
+        last.checkout &&
+        !last.paymentInstrument;
+
+      if (canMerge) {
+        const merged: ChatMessage = {
+          ...last,
+          paymentInstrument,
+        };
+        return [...prev.slice(0, -1), merged];
+      }
+
+      const paymentInstrumentMessage: ChatMessage = {
+        sender: Sender.MODEL,
+        text: '',
+        paymentInstrument,
+      };
+      return [...prev, paymentInstrumentMessage];
+    });
   };
 
   const handleConfirmPayment = async (paymentInstrument: PaymentInstrument) => {
-    // Hide the payment confirmation component
+    gpayShippingRef.current = null;
+
     const userActionMessage: ChatMessage = {
       sender: Sender.USER,
       text: `User confirmed payment.`,
       isUserAction: true,
     };
-    // Let handleSendMessage manage the loading indicator
     setMessages((prev) => [
       ...prev.filter((msg) => !msg.paymentInstrument),
       userActionMessage,
@@ -270,7 +421,12 @@ function App() {
 
   const handleSendMessage = async (
     messageContent: string | any[],
-    options?: {isUserAction?: boolean; headers?: Record<string, string>},
+    options?: {
+      isUserAction?: boolean;
+      headers?: Record<string, string>;
+      skipPaymentMethods?: boolean;
+      skipGpayShippingApply?: boolean;
+    },
   ) => {
     if (isLoading) return;
 
@@ -370,21 +526,20 @@ function App() {
         [];
 
       for (const part of responseParts) {
-        if (part.text) {
-          // Simple text
+        const p = part.root ?? part;
+        const text = p.text ?? part.text;
+        const data = p.data ?? part.data;
+        if (text) {
           combinedBotMessage.text +=
-            (combinedBotMessage.text ? '\n' : '') + part.text;
-        } else if (part.data?.['a2a.product_results']) {
-          // Product results
+            (combinedBotMessage.text ? '\n' : '') + text;
+        } else if (data?.['a2a.product_results']) {
           combinedBotMessage.text +=
             (combinedBotMessage.text ? '\n' : '') +
-            (part.data['a2a.product_results'].content || '');
-          combinedBotMessage.products =
-            part.data['a2a.product_results'].results;
-        } else if (part.data?.['a2a.ucp.checkout']) {
-          // Checkout
-          combinedBotMessage.checkout = part.data['a2a.ucp.checkout'];
-        } else if (part.data?.status === 'requires_more_info') {
+            (data['a2a.product_results'].content || '');
+          combinedBotMessage.products = data['a2a.product_results'].results;
+        } else if (data?.['a2a.ucp.checkout']) {
+          combinedBotMessage.checkout = data['a2a.ucp.checkout'];
+        } else if (data?.status === 'requires_more_info') {
           requiresMoreInfo = true;
         }
       }
@@ -399,7 +554,11 @@ function App() {
         const hasCustomerDetails =
           !!checkoutForPayment.buyer && !!checkoutForPayment.fulfillment;
 
-        if (!hasPaymentMethod && checkoutForPayment.payment?.handlers) {
+        if (
+          !options?.skipPaymentMethods &&
+          !hasPaymentMethod &&
+          checkoutForPayment.payment?.handlers
+        ) {
           // No payment method selected → show select payment method only (no checkout)
           try {
             const handler = checkoutForPayment.payment.handlers.find(
@@ -426,6 +585,7 @@ function App() {
 
       // Show payment method selection when checkout is ready_for_complete
       if (
+        !options?.skipPaymentMethods &&
         checkoutForPayment?.status === 'ready_for_complete' &&
         checkoutForPayment?.payment?.handlers
       ) {
@@ -452,6 +612,18 @@ function App() {
         }
       }
 
+      if (
+        !options?.skipGpayShippingApply &&
+        combinedBotMessage.checkout &&
+        gpayShippingRef.current?.shippingCost != null
+      ) {
+        combinedBotMessage.checkout = applyGpayShippingToCheckout(
+          combinedBotMessage.checkout,
+          gpayShippingRef.current,
+        );
+        gpayShippingRef.current = null;
+      }
+
       const newMessages: ChatMessage[] = [];
       const hasContent =
         combinedBotMessage.text ||
@@ -466,8 +638,8 @@ function App() {
       if (newMessages.length > 0) {
         setMessages((prev) => [...prev.slice(0, -1), ...newMessages]);
       } else {
-        console.warn(
-          '[App] Unparseable response - no content extracted.',
+        console.error(
+          '[App] Unparseable response - no content extracted (client fallback).',
           '\ndata.result:',
           JSON.stringify(data.result, null, 2),
           '\nresponseParts length:',
@@ -496,6 +668,9 @@ function App() {
   const lastCheckoutIndex = messages.map((m) => !!m.checkout).lastIndexOf(true);
   const lastCheckout =
     lastCheckoutIndex >= 0 ? messages[lastCheckoutIndex].checkout : null;
+  const hasPaymentInstrumentInMessages = messages.some(
+    (m) => !!m.paymentInstrument,
+  );
 
   const handleSendMessageWithShortcuts = (messageContent: string | any[]) => {
     handleSendMessage(messageContent);
@@ -519,6 +694,7 @@ function App() {
             }
             onSelectPaymentMethod={handlePaymentMethodSelected}
             onGooglePayComplete={handleGooglePayComplete}
+            onGooglePayReady={scrollToBottom}
             lastCheckout={lastCheckout}
             onConfirmPayment={handleConfirmPayment}
             onCompletePayment={
@@ -526,7 +702,9 @@ function App() {
                 ? handlePaymentMethodSelection
                 : undefined
             }
-            isLastCheckout={index === lastCheckoutIndex}></ChatMessageComponent>
+            isLastCheckout={index === lastCheckoutIndex}
+            hasPaymentInstrumentInMessages={hasPaymentInstrumentInMessages}
+          />
         ))}
       </main>
       <ChatInput

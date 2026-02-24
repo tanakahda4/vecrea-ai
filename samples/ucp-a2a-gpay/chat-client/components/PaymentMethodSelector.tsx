@@ -15,23 +15,41 @@
  */
 import React from 'react';
 import {Checkout, PaymentMethod} from '../types';
-import GooglePayButton from './GooglePayButton';
+import GooglePayButton, {GooglePayPaymentData} from './GooglePayButton';
 
 interface PaymentMethodSelectorProps {
   paymentMethods: PaymentMethod[];
   onSelect: (selectedMethod: string) => void;
-  onGooglePayComplete?: (token: string) => void;
+  onGooglePayComplete?: (data: GooglePayPaymentData) => void;
+  onGooglePayReady?: () => void;
   checkout?: Checkout | null;
 }
 
 const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
   onGooglePayComplete,
+  onGooglePayReady,
   checkout,
 }) => {
+  const subtotalTotal = checkout?.totals?.find((t) => t.type === 'subtotal');
+  const taxTotal = checkout?.totals?.find((t) => t.type === 'tax');
   const totalTotal = checkout?.totals?.find((t) => t.type === 'total');
-  const totalAmount = totalTotal
-    ? (totalTotal.amount / 100).toFixed(2)
-    : '100';
+  const subtotalAmount = subtotalTotal
+    ? (subtotalTotal.amount / 100).toFixed(2)
+    : totalTotal
+      ? (totalTotal.amount / 100).toFixed(2)
+      : '100';
+  const taxAmount = taxTotal
+    ? (taxTotal.amount / 100).toFixed(2)
+    : (() => {
+        if (subtotalTotal) {
+          return (Math.round(subtotalTotal.amount * 0.1) / 100).toFixed(2);
+        }
+        if (totalTotal) {
+          const estimatedSubtotalCents = totalTotal.amount / 1.1;
+          return (Math.round(estimatedSubtotalCents * 0.1) / 100).toFixed(2);
+        }
+        return '10.00';
+      })();
   const currencyCode = checkout?.currency ?? 'USD';
 
   if (!onGooglePayComplete) return null;
@@ -43,7 +61,9 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
       </h3>
       <GooglePayButton
         onToken={onGooglePayComplete}
-        totalAmount={totalAmount}
+        onReady={onGooglePayReady}
+        totalAmount={subtotalAmount}
+        taxAmount={taxAmount}
         currencyCode={currencyCode}
         countryCode="US"
       />

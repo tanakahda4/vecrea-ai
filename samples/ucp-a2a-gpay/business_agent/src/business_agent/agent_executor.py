@@ -224,7 +224,16 @@ class ADKAgentExecutor(AgentExecutor):
             new_message=content,
             state_delta=state_delta,
         ):
-            if event.is_final_response() or len(final_events) > 0:
+            # Collect final text responses and events with function_responses.
+            # is_final_response() is False when event has function_responses, but
+            # modify_output_after_agent replaces model output with tool results
+            # (e.g. a2a.product_results), so we must collect those events too.
+            has_function_responses = bool(event.get_function_responses())
+            if (
+                event.is_final_response()
+                or has_function_responses
+                or len(final_events) > 0
+            ):
                 final_events.append(event)
 
         for final_event in final_events:

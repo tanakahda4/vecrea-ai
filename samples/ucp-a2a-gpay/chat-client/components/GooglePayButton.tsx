@@ -22,6 +22,18 @@ const merchantInfo = {
   merchantName: 'Example Merchant',
 };
 
+const SHIPPING_OPTIONS = {
+  standard: {id: 'shipping-standard', cost: 5.0, label: 'Standard', description: 'Delivered in 5-7 business days.'},
+  express: {id: 'shipping-express', cost: 10.0, label: 'Express', description: 'Delivered in 1-2 business days.'},
+} as const;
+
+const DEFAULT_SHIPPING_OPTION_ID = SHIPPING_OPTIONS.standard.id;
+
+const getShippingCost = (optionId: string): number => {
+  const option = Object.values(SHIPPING_OPTIONS).find((o) => o.id === optionId);
+  return option?.cost ?? SHIPPING_OPTIONS.standard.cost;
+};
+
 const baseGooglePayRequest = {
   apiVersion: 2,
   apiVersionMinor: 0,
@@ -29,7 +41,7 @@ const baseGooglePayRequest = {
     {
       type: 'CARD' as const,
       parameters: {
-        allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'] as const,
+        allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
         allowedCardNetworks: [
           'AMEX',
           'DISCOVER',
@@ -37,7 +49,7 @@ const baseGooglePayRequest = {
           'JCB',
           'MASTERCARD',
           'VISA',
-        ] as const,
+        ],
       },
       tokenizationSpecification: {
         type: 'PAYMENT_GATEWAY' as const,
@@ -52,6 +64,58 @@ const baseGooglePayRequest = {
   ],
   merchantInfo,
 };
+
+const getTransactionInfo = (
+  subtotal: number,
+  taxAmount: number,
+  shippingCost: number,
+  currencyCode: string,
+  countryCode: string,
+): google.payments.api.TransactionInfo => {
+  const total = subtotal + taxAmount + shippingCost;
+  const displayItems: google.payments.api.DisplayItem[] = [
+    {label: 'Subtotal', type: 'SUBTOTAL' as const, price: subtotal.toFixed(2)},
+  ];
+  if (taxAmount > 0) {
+    displayItems.push({
+      label: 'Tax',
+      type: 'TAX' as const,
+      price: taxAmount.toFixed(2),
+    });
+  }
+  if (shippingCost > 0) {
+    displayItems.push({
+      label: 'Shipping',
+      type: 'SHIPPING_OPTION' as const,
+      price: shippingCost.toFixed(2),
+    });
+  }
+  return {
+    countryCode,
+    currencyCode,
+    totalPriceStatus: 'FINAL' as const,
+    totalPrice: total.toFixed(2),
+    totalPriceLabel: 'Total',
+    checkoutOption: 'CONTINUE_TO_REVIEW' as const,
+    displayItems,
+  };
+};
+
+const getShippingOptionParameters = (): google.payments.api.ShippingOptionParameters => ({
+  defaultSelectedOptionId: DEFAULT_SHIPPING_OPTION_ID,
+  shippingOptions: [
+    {
+      id: SHIPPING_OPTIONS.standard.id,
+      label: `$${SHIPPING_OPTIONS.standard.cost.toFixed(2)}: ${SHIPPING_OPTIONS.standard.label} shipping`,
+      description: SHIPPING_OPTIONS.standard.description,
+    },
+    {
+      id: SHIPPING_OPTIONS.express.id,
+      label: `$${SHIPPING_OPTIONS.express.cost.toFixed(2)}: ${SHIPPING_OPTIONS.express.label} shipping`,
+      description: SHIPPING_OPTIONS.express.description,
+    },
+  ],
+});
 
 export interface GooglePayAddress {
   name?: string;
@@ -70,12 +134,16 @@ export interface GooglePayPaymentData {
   brand?: string;
   email?: string;
   shippingAddress?: GooglePayAddress;
+  shippingOptionId?: string;
+  shippingCost?: number;
 }
 
 interface GooglePayButtonProps {
   onToken: (data: GooglePayPaymentData) => void;
   onError?: (error: Error) => void;
+  onReady?: () => void;
   totalAmount?: string;
+  taxAmount?: string;
   currencyCode?: string;
   countryCode?: string;
 }
@@ -83,7 +151,9 @@ interface GooglePayButtonProps {
 const GooglePayButton: React.FC<GooglePayButtonProps> = ({
   onToken,
   onError,
+  onReady,
   totalAmount = '100',
+  taxAmount = '0',
   currencyCode = 'USD',
   countryCode = 'US',
 }) => {
@@ -108,7 +178,9 @@ const GooglePayButton: React.FC<GooglePayButtonProps> = ({
       client
         .isReadyToPay(req)
         .then((res) => {
-          setIsReady(!!res.result);
+          const ready = !!res.result;
+          setIsReady(ready);
+          if (ready) onReady?.();
         })
         .catch((err) => {
           onError?.(err as Error);
@@ -133,30 +205,89 @@ const GooglePayButton: React.FC<GooglePayButtonProps> = ({
       return;
     isLoadingRef.current = true;
 
+    const subtotal = parseFloat(totalAmount) || 0;
+    const tax =
+      parseFloat(taxAmount) ||
+      (subtotal > 0 ? Math.round(subtotal * 100 * 0.1) / 100 : 0);
+
+    const onPaymentDataChanged = (
+      intermediatePaymentData: google.payments.api.IntermediatePaymentData,
+    ): google.payments.api.PaymentDataRequestUpdate => {
+      const {callbackTrigger, shippingAddress, shippingOptionData} =
+        intermediatePaymentData;
+      const paymentDataRequestUpdate: google.payments.api.PaymentDataRequestUpdate =
+        {};
+
+      if (
+        callbackTrigger === 'INITIALIZE' ||
+        callbackTrigger === 'SHIPPING_ADDRESS'
+      ) {
+        if (shippingAddress) {
+          paymentDataRequestUpdate.newShippingOptionParameters =
+            getShippingOptionParameters();
+          const shippingCost = getShippingCost(DEFAULT_SHIPPING_OPTION_ID);
+          paymentDataRequestUpdate.newTransactionInfo = getTransactionInfo(
+            subtotal,
+            tax,
+            shippingCost,
+            currencyCode,
+            countryCode,
+          );
+        }
+      } else if (callbackTrigger === 'SHIPPING_OPTION' && shippingOptionData) {
+        const shippingCost = getShippingCost(shippingOptionData.id);
+        paymentDataRequestUpdate.newTransactionInfo = getTransactionInfo(
+          subtotal,
+          tax,
+          shippingCost,
+          currencyCode,
+          countryCode,
+        );
+      }
+
+      return paymentDataRequestUpdate;
+    };
+
+    const onPaymentAuthorized = (
+      _paymentData: google.payments.api.PaymentData,
+    ): google.payments.api.PaymentAuthorizationResult => ({
+      transactionState: 'SUCCESS',
+    });
+
     try {
       const client = new google.payments.api.PaymentsClient({
         environment: 'TEST',
         merchantInfo,
+        paymentDataCallbacks: {
+          onPaymentDataChanged,
+          onPaymentAuthorized,
+        },
       });
 
       const req = {
         ...baseGooglePayRequest,
-        transactionInfo: {
-          countryCode: countryCode,
-          currencyCode: currencyCode,
-          totalPriceStatus: 'FINAL' as const,
-          totalPrice: totalAmount,
-        },
+        transactionInfo: getTransactionInfo(
+          subtotal,
+          tax,
+          0,
+          currencyCode,
+          countryCode,
+        ),
+        callbackIntents: [
+          'SHIPPING_ADDRESS',
+          'SHIPPING_OPTION',
+          'PAYMENT_AUTHORIZATION',
+        ],
         emailRequired: true,
         shippingAddressRequired: true,
         shippingAddressParameters: {
           allowedCountryCodes: [countryCode],
         },
+        shippingOptionRequired: true,
       } as unknown as google.payments.api.PaymentDataRequest;
 
       const res = await client.loadPaymentData(req);
-      const token =
-        res.paymentMethodData?.tokenizationData?.token ?? '';
+      const token = res.paymentMethodData?.tokenizationData?.token ?? '';
       const info = res.paymentMethodData?.info;
       const shippingAddress = res.shippingAddress
         ? {
@@ -170,6 +301,10 @@ const GooglePayButton: React.FC<GooglePayButtonProps> = ({
             countryCode: res.shippingAddress.countryCode,
           }
         : undefined;
+      const shippingOptionId = res.shippingOptionData?.id;
+      const shippingCost = shippingOptionId
+        ? getShippingCost(shippingOptionId)
+        : undefined;
 
       if (token) {
         onToken({
@@ -178,6 +313,8 @@ const GooglePayButton: React.FC<GooglePayButtonProps> = ({
           brand: info?.cardNetwork?.toLowerCase(),
           email: res.email,
           shippingAddress,
+          shippingOptionId,
+          shippingCost,
         });
       }
     } catch (err) {
@@ -187,13 +324,15 @@ const GooglePayButton: React.FC<GooglePayButtonProps> = ({
     }
   };
 
-  if (!isReady) return null;
+  if (!isReady) {
+    return <div className="h-12 w-full" aria-hidden="true" />;
+  }
 
   return (
     <button
       type="button"
       onClick={handleClick}
-      className="gpay-custom-button flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-black px-4 py-3 text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+      className="gpay-custom-button flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-black px-4 py-3 text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
       <svg
         className="h-5 w-5"
         viewBox="0 0 24 24"
