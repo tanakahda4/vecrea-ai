@@ -15,142 +15,18 @@
  */
 /// <reference types="googlepay" />
 
-import React, {useEffect, useRef, useState} from 'react';
-
-const merchantInfo = {
-  merchantId: '12345678901234567890',
-  merchantName: 'Example Merchant',
-};
-
-const SHIPPING_OPTIONS = {
-  standard: {id: 'shipping-standard', label: 'Standard', description: 'Delivered in 5-7 business days.'},
-  express: {id: 'shipping-express', label: 'Express', description: 'Delivered in 1-2 business days.'},
-} as const;
-
-const DEFAULT_SHIPPING_OPTION_ID = SHIPPING_OPTIONS.standard.id;
-
-/** Shipping cost by country: US $5/$10, Canada $7/$12 (standard/express). */
-const SHIPPING_COST_BY_COUNTRY: Record<string, {standard: number; express: number}> = {
-  US: {standard: 5, express: 10},
-  CA: {standard: 7, express: 12},
-};
-
-const DEFAULT_COUNTRY = 'US';
-
-const getShippingCost = (optionId: string, countryCode: string): number => {
-  const costs = SHIPPING_COST_BY_COUNTRY[countryCode] ?? SHIPPING_COST_BY_COUNTRY[DEFAULT_COUNTRY];
-  const isStandard = optionId === SHIPPING_OPTIONS.standard.id;
-  return isStandard ? costs.standard : costs.express;
-};
-
-const getShippingOptionParameters = (
-  countryCode: string,
-): google.payments.api.ShippingOptionParameters => {
-  const costs = SHIPPING_COST_BY_COUNTRY[countryCode] ?? SHIPPING_COST_BY_COUNTRY[DEFAULT_COUNTRY];
-  return {
-    defaultSelectedOptionId: DEFAULT_SHIPPING_OPTION_ID,
-    shippingOptions: [
-      {
-        id: SHIPPING_OPTIONS.standard.id,
-        label: `$${costs.standard.toFixed(2)}: ${SHIPPING_OPTIONS.standard.label} shipping`,
-        description: SHIPPING_OPTIONS.standard.description,
-      },
-      {
-        id: SHIPPING_OPTIONS.express.id,
-        label: `$${costs.express.toFixed(2)}: ${SHIPPING_OPTIONS.express.label} shipping`,
-        description: SHIPPING_OPTIONS.express.description,
-      },
-    ],
-  };
-};
-
-const baseGooglePayRequest = {
-  apiVersion: 2,
-  apiVersionMinor: 0,
-  allowedPaymentMethods: [
-    {
-      type: 'CARD' as const,
-      parameters: {
-        allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
-        allowedCardNetworks: [
-          'AMEX',
-          'DISCOVER',
-          'INTERAC',
-          'JCB',
-          'MASTERCARD',
-          'VISA',
-        ],
-      },
-      tokenizationSpecification: {
-        type: 'PAYMENT_GATEWAY' as const,
-        parameters: {
-          gateway: 'stripe',
-          'stripe:version': '2018-10-31',
-          'stripe:publishableKey':
-            'pk_test_51SwuqqLhRrbfZ6adrxNQ6xgZgphJGmf0hlEiiTYbn9V1cnbi7q8yS49NaBvjz6F9uM8ItOfvEurtq211Pzgh3k7V00l2rh6dHB',
-        },
-      },
-    },
-  ],
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  baseGooglePayRequest,
+  createPaymentDataChangedHandler,
+  getTransactionInfo,
   merchantInfo,
-};
+  onPaymentAuthorized,
+  parsePaymentResponse,
+  type GooglePayPaymentData,
+} from '../helpers/gpay';
 
-const getTransactionInfo = (
-  subtotal: number,
-  taxAmount: number,
-  shippingCost: number,
-  currencyCode: string,
-  countryCode: string,
-): google.payments.api.TransactionInfo => {
-  const total = subtotal + taxAmount + shippingCost;
-  const displayItems: google.payments.api.DisplayItem[] = [
-    {label: 'Subtotal', type: 'SUBTOTAL' as const, price: subtotal.toFixed(2)},
-  ];
-  if (taxAmount > 0) {
-    displayItems.push({
-      label: 'Tax',
-      type: 'TAX' as const,
-      price: taxAmount.toFixed(2),
-    });
-  }
-  if (shippingCost > 0) {
-    displayItems.push({
-      label: 'Shipping',
-      type: 'SHIPPING_OPTION' as const,
-      price: shippingCost.toFixed(2),
-    });
-  }
-  return {
-    countryCode,
-    currencyCode,
-    totalPriceStatus: 'FINAL' as const,
-    totalPrice: total.toFixed(2),
-    totalPriceLabel: 'Total',
-    checkoutOption: 'CONTINUE_TO_REVIEW' as const,
-    displayItems,
-  };
-};
-
-export interface GooglePayAddress {
-  name?: string;
-  address1?: string;
-  address2?: string;
-  address3?: string;
-  locality?: string;
-  administrativeArea?: string;
-  postalCode?: string;
-  countryCode?: string;
-}
-
-export interface GooglePayPaymentData {
-  token: string;
-  last_digits?: string;
-  brand?: string;
-  email?: string;
-  shippingAddress?: GooglePayAddress;
-  shippingOptionId?: string;
-  shippingCost?: number;
-}
+export type { GooglePayAddress, GooglePayPaymentData } from '../helpers/gpay';
 
 interface GooglePayButtonProps {
   onToken: (data: GooglePayPaymentData) => void;
@@ -166,7 +42,7 @@ const GooglePayButton: React.FC<GooglePayButtonProps> = ({
   onToken,
   onError,
   onReady,
-  totalAmount = '100',
+  totalAmount = '0',
   taxAmount = '0',
   currencyCode = 'USD',
   countryCode = 'US',
@@ -176,7 +52,10 @@ const GooglePayButton: React.FC<GooglePayButtonProps> = ({
 
   useEffect(() => {
     const init = () => {
-      if (typeof google === 'undefined' || !google.payments?.api?.PaymentsClient) {
+      if (
+        typeof google === 'undefined' ||
+        !google.payments?.api?.PaymentsClient
+      ) {
         return;
       }
 
@@ -205,7 +84,10 @@ const GooglePayButton: React.FC<GooglePayButtonProps> = ({
       init();
     } else {
       const checkInterval = setInterval(() => {
-        if (typeof google !== 'undefined' && google.payments?.api?.PaymentsClient) {
+        if (
+          typeof google !== 'undefined' &&
+          google.payments?.api?.PaymentsClient
+        ) {
           clearInterval(checkInterval);
           init();
         }
@@ -224,68 +106,11 @@ const GooglePayButton: React.FC<GooglePayButtonProps> = ({
       parseFloat(taxAmount) ||
       (subtotal > 0 ? Math.round(subtotal * 100 * 0.1) / 100 : 0);
 
-    let lastKnownCountry: string | null = null;
-
-    const onPaymentDataChanged = (
-      intermediatePaymentData: google.payments.api.IntermediatePaymentData,
-    ): google.payments.api.PaymentDataRequestUpdate => {
-      const {callbackTrigger, shippingAddress, shippingOptionData} =
-        intermediatePaymentData;
-      const paymentDataRequestUpdate: google.payments.api.PaymentDataRequestUpdate =
-        {};
-
-      if (
-        callbackTrigger === 'INITIALIZE' ||
-        callbackTrigger === 'SHIPPING_ADDRESS'
-      ) {
-        const addrCountry = shippingAddress?.countryCode;
-        if (addrCountry) {
-          lastKnownCountry = addrCountry;
-          if (callbackTrigger === 'INITIALIZE') {
-            console.log('[GooglePay] INITIALIZE: address received', {
-              countryCode: addrCountry,
-              shippingCost: getShippingCost(DEFAULT_SHIPPING_OPTION_ID, addrCountry),
-            });
-          }
-        } else if (callbackTrigger === 'INITIALIZE') {
-          console.log('[GooglePay] INITIALIZE: no address (user has not selected yet)');
-        }
-        if (shippingAddress || callbackTrigger === 'INITIALIZE') {
-          const shippingCost = lastKnownCountry
-            ? getShippingCost(DEFAULT_SHIPPING_OPTION_ID, lastKnownCountry)
-            : 0;
-          if (lastKnownCountry) {
-            paymentDataRequestUpdate.newShippingOptionParameters =
-              getShippingOptionParameters(lastKnownCountry);
-          }
-          paymentDataRequestUpdate.newTransactionInfo = getTransactionInfo(
-            subtotal,
-            tax,
-            shippingCost,
-            currencyCode,
-            lastKnownCountry ?? DEFAULT_COUNTRY,
-          );
-        }
-      } else if (callbackTrigger === 'SHIPPING_OPTION' && shippingOptionData) {
-        const shippingCost = lastKnownCountry
-          ? getShippingCost(shippingOptionData.id, lastKnownCountry)
-          : 0;
-        paymentDataRequestUpdate.newTransactionInfo = getTransactionInfo(
-          subtotal,
-          tax,
-          shippingCost,
-          currencyCode,
-          lastKnownCountry ?? DEFAULT_COUNTRY,
-        );
-      }
-
-      return paymentDataRequestUpdate;
-    };
-
-    const onPaymentAuthorized = (
-      _paymentData: google.payments.api.PaymentData,
-    ): google.payments.api.PaymentAuthorizationResult => ({
-      transactionState: 'SUCCESS',
+    const onPaymentDataChanged = createPaymentDataChangedHandler({
+      subtotal,
+      tax,
+      currencyCode,
+      countryCode,
     });
 
     try {
@@ -321,36 +146,9 @@ const GooglePayButton: React.FC<GooglePayButtonProps> = ({
       } as unknown as google.payments.api.PaymentDataRequest;
 
       const res = await client.loadPaymentData(req);
-      const token = res.paymentMethodData?.tokenizationData?.token ?? '';
-      const info = res.paymentMethodData?.info;
-      const shippingAddress = res.shippingAddress
-        ? {
-            name: res.shippingAddress.name,
-            address1: res.shippingAddress.address1,
-            address2: res.shippingAddress.address2,
-            address3: res.shippingAddress.address3,
-            locality: res.shippingAddress.locality,
-            administrativeArea: res.shippingAddress.administrativeArea,
-            postalCode: res.shippingAddress.postalCode,
-            countryCode: res.shippingAddress.countryCode,
-          }
-        : undefined;
-      const shippingOptionId = res.shippingOptionData?.id;
-      const addressCountry = res.shippingAddress?.countryCode ?? DEFAULT_COUNTRY;
-      const shippingCost = shippingOptionId
-        ? getShippingCost(shippingOptionId, addressCountry)
-        : undefined;
-
-      if (token) {
-        onToken({
-          token,
-          last_digits: info?.cardDetails,
-          brand: info?.cardNetwork?.toLowerCase(),
-          email: res.email,
-          shippingAddress,
-          shippingOptionId,
-          shippingCost,
-        });
+      const paymentData = parsePaymentResponse(res);
+      if (paymentData) {
+        onToken(paymentData);
       }
     } catch (err) {
       onError?.(err as Error);
@@ -367,12 +165,14 @@ const GooglePayButton: React.FC<GooglePayButtonProps> = ({
     <button
       type="button"
       onClick={handleClick}
-      className="gpay-custom-button flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-gray-300 bg-black px-4 py-3 text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+      className="gpay-custom-button flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-[#e0e0e0] bg-black px-4 py-3 text-white hover:bg-[#333] focus:outline-none focus:ring-2 focus:ring-[#00a040] focus:ring-offset-2"
+    >
       <svg
         className="h-5 w-5"
         viewBox="0 0 24 24"
         fill="none"
-        xmlns="http://www.w3.org/2000/svg">
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <path
           d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
           fill="#4285F4"

@@ -55,8 +55,8 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
   if (!onGooglePayComplete) return null;
 
   return (
-    <div className="max-w-md bg-white rounded-lg shadow-lg p-4 border border-gray-200">
-      <h3 className="text-lg font-bold text-gray-800 mb-3">
+    <div className="max-w-md bg-white rounded-lg shadow-lg p-4 border border-[#e0e0e0]">
+      <h3 className="text-lg font-bold text-[#333] mb-3">
         Select a Payment Method
       </h3>
       <GooglePayButton

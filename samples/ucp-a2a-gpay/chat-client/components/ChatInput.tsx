@@ -45,7 +45,7 @@ function ChatInput({onSendMessage, isLoading}: ChatInputProps) {
   };
 
   return (
-    <div className="bg-white p-3 border-t border-gray-200 shadow-t-sm flex-shrink-0">
+    <div className="bg-white p-3 border-t border-[#e0e0e0] shadow-t-sm flex-shrink-0">
       <form
         onSubmit={handleSubmit}
         className="flex items-center space-x-3 max-w-4xl mx-auto">
@@ -54,14 +54,14 @@ function ChatInput({onSendMessage, isLoading}: ChatInputProps) {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="Type your message..."
-          className="flex-grow p-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+          className="flex-grow p-3 border border-[#e0e0e0] rounded-full focus:outline-none focus:ring-2 focus:ring-[#00a040] focus:border-[#00a040] transition"
           disabled={isLoading}
           autoComplete="off"
         />
         <button
           type="submit"
           disabled={isLoading || !inputValue.trim()}
-          className="bg-blue-500 text-white p-3 rounded-full disabled:bg-blue-300 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+          className="bg-[#00a040] text-white p-3 rounded-full disabled:bg-[#7DBB7C] disabled:cursor-not-allowed hover:bg-[#006633] transition-colors focus:outline-none focus:ring-2 focus:ring-[#00a040] focus:ring-offset-2"
           aria-label="Send message">
           <SendIcon />
         </button>

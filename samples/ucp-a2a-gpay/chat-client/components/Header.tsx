@@ -13,22 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {appConfig} from '@/config';
 import React from 'react';
+
+function CartIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+      />
+    </svg>
+  );
+}
 
 function Header() {
   return (
-    <header className="bg-white shadow-sm p-4 border-b border-gray-200 flex-shrink-0">
-      <h1 className="text-xl font-bold text-gray-800 text-center flex justify-center items-center">
-        <img
-          src={appConfig.logoUrl}
-          alt={appConfig.name}
-          className="h-8 mr-3"
-        />
-        <span>{appConfig.titleText}</span>
-      </h1>
+    <header className="bg-[#004d40] p-4 flex-shrink-0 flex items-center gap-3 border-b-2 border-[#7cb342]">
+      <div className="flex-shrink-0 w-12 h-12 rounded-full bg-[#7cb342] flex items-center justify-center shadow-lg ring-2 ring-white/30">
+        <CartIcon className="h-7 w-7 text-[#004d40]" />
+      </div>
+      <h1 className="text-xl font-bold text-white">Shopping Agent</h1>
     </header>
   );
 }
 
+export {CartIcon};
 export default Header;

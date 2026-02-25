@@ -15,6 +15,7 @@
  */
 import {appConfig} from '@/config';
 import React from 'react';
+import {CartIcon} from './Header';
 import {
   ChatMessage,
   Checkout,
@@ -54,16 +55,16 @@ function TypingIndicator() {
   return (
     <div className="w-full my-1 justify-start">
       <div className="flex items-center gap-2 mb-1">
-        <div className="flex-shrink-0">
-          <img src={appConfig.logoUrl} className="w-8 h-8" />
+        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#00a040] flex items-center justify-center text-white p-1.5">
+          <CartIcon className="w-full h-full" />
         </div>
-        <span className="font-semibold text-gray-700">{appConfig.name}</span>
+        <span className="font-semibold text-[#333]">{appConfig.name}</span>
       </div>
-      <div className="ml-10 px-4 py-3 rounded-2xl shadow-sm bg-gray-200 text-gray-800 self-start inline-block">
+      <div className="ml-10 px-4 py-3 rounded-2xl shadow-sm bg-[#e8f5e9] text-[#333] self-start inline-block">
         <div className="flex items-center space-x-2 h-5">
-          <span className="h-2 w-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-          <span className="h-2 w-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-          <span className="h-2 w-2 bg-gray-400 rounded-full animate-bounce"></span>
+          <span className="h-2 w-2 bg-[#00a040] rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+          <span className="h-2 w-2 bg-[#00a040] rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+          <span className="h-2 w-2 bg-[#00a040] rounded-full animate-bounce"></span>
         </div>
       </div>
     </div>
@@ -93,11 +94,11 @@ function ChatMessageComponent({
   if (isUser) {
     return (
       <div className="flex w-full my-1 items-start gap-2 justify-end">
-        <div className="max-w-xs md:max-w-md lg:max-w-2xl px-4 py-2 rounded-2xl shadow-sm bg-blue-500 text-white self-end">
+        <div className="max-w-xs md:max-w-md lg:max-w-2xl px-4 py-2 rounded-2xl shadow-sm bg-[#00a040] text-white self-end">
           <div className="whitespace-pre-wrap break-words">{message.text}</div>
         </div>
         <div className="flex-shrink-0 pt-1">
-          <UserLogo className="w-8 h-8 text-gray-400" />
+          <UserLogo className="w-8 h-8 text-[#666]" />
         </div>
       </div>
     );
@@ -106,18 +107,14 @@ function ChatMessageComponent({
   return (
     <div className="w-full my-1 justify-start">
       <div className="flex items-center gap-2 mb-1">
-        <div className="flex-shrink-0">
-          <img
-            src={appConfig.logoUrl}
-            alt={appConfig.name}
-            className="w-8 h-8"
-          />
+        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#00a040] flex items-center justify-center text-white p-1.5">
+          <CartIcon className="w-full h-full" />
         </div>
-        <span className="font-semibold text-gray-700">{appConfig.name}</span>
+        <span className="font-semibold text-[#333]">{appConfig.name}</span>
       </div>
       <div className="ml-10 flex-grow min-w-0">
         {message.text && (
-          <div className="max-w-xs md:max-w-md lg:max-w-2xl px-4 py-2 rounded-2xl shadow-sm bg-gray-200 text-gray-800 self-start inline-block">
+          <div className="max-w-xs md:max-w-md lg:max-w-2xl px-4 py-2 rounded-2xl shadow-sm bg-[#e8f5e9] text-[#333] self-start inline-block">
             <div
               className="break-words"
               dangerouslySetInnerHTML={{
@@ -149,7 +146,7 @@ function ChatMessageComponent({
         )}
 
         {message.customerDetailOptions && (
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-[#666]">
             Please type your email and shipping address in the chat.
           </p>
         )}

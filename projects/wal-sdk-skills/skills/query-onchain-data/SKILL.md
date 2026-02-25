@@ -1,9 +1,9 @@
 ---
 name: query-onchain-data
-description: Query onchain data on Base using the CDP SQL API via x402. Use when you or your user want to view onchain information about decoded blocks, transactions, and event.
+description: Query onchain data on Base using the CDP SQL API via x402. Use when you or your user want to view onchain information about decoded blocks, transactions, and events.
 user-invocable: true
 disable-model-invocation: false
-allowed-tools: ["Bash(npx awal@2.0.3 status*)", "Bash(npx awal@2.0.3 balance*)", "Bash(npx awal@2.0.3 x402 pay *)"]
+allowed-tools: Bash(npx wal-sdk status*) Bash(npx wal-sdk balance*) Bash(npx wal-sdk x402 pay *)
 ---
 
 # Query Onchain Data on Base
@@ -13,7 +13,7 @@ Use the CDP SQL API to query onchain data (events, transactions, blocks, transfe
 ## Confirm wallet is initialized and authed
 
 ```bash
-npx awal@2.0.3 status
+npx wal-sdk status
 ```
 
 If the wallet is not authenticated, refer to the `authenticate-wallet` skill.
@@ -21,10 +21,18 @@ If the wallet is not authenticated, refer to the `authenticate-wallet` skill.
 ## Executing a Query
 
 ```bash
-npx awal@2.0.3 x402 pay https://x402.cdp.coinbase.com/platform/v2/data/query/run -X POST -d '{"sql": "<YOUR_QUERY>"}' --json
+npx wal-sdk x402 pay https://x402.cdp.coinbase.com/platform/v2/data/query/run -X POST -d '{"sql": "<YOUR_QUERY>"}' --json
 ```
 
 **IMPORTANT**: Always single-quote the `-d` JSON string to prevent bash variable expansion.
+
+### Options (from wal-sdk)
+
+| Option | Description |
+| ------ | ----------- |
+| `-c, --chain <chain>` | Filter by chain. Choices: `base`, `base-sepolia` |
+| `-m, --max-amount <amount>` | Max payment in USDC atomic units (1000000 = $1.00). Use for query cost limits. |
+| `--json` | Output as JSON |
 
 ## Input Validation
 
@@ -164,19 +172,19 @@ LIMIT 10
 ### Get transactions from a specific address
 
 ```bash
-npx awal@2.0.3 x402 pay https://x402.cdp.coinbase.com/platform/v2/data/query/run -X POST -d '{"sql": "SELECT transaction_hash, to_address, value, gas, timestamp FROM base.transactions WHERE from_address = lower('\''0xYOUR_ADDRESS'\'') AND timestamp >= now() - INTERVAL 1 DAY LIMIT 10"}' --json
+npx wal-sdk x402 pay https://x402.cdp.coinbase.com/platform/v2/data/query/run -X POST -d '{"sql": "SELECT transaction_hash, to_address, value, gas, timestamp FROM base.transactions WHERE from_address = lower('\''0xYOUR_ADDRESS'\'') AND timestamp >= now() - INTERVAL 1 DAY LIMIT 10"}' --json
 ```
 
 ### Count events by type for a contract in the last hour
 
 ```bash
-npx awal@2.0.3 x402 pay https://x402.cdp.coinbase.com/platform/v2/data/query/run -X POST -d '{"sql": "SELECT event_signature, count(*) as cnt FROM base.events WHERE address = lower('\''0xCONTRACT_ADDRESS'\'') AND block_timestamp >= now() - INTERVAL 1 HOUR GROUP BY event_signature ORDER BY cnt DESC LIMIT 20"}' --json
+npx wal-sdk x402 pay https://x402.cdp.coinbase.com/platform/v2/data/query/run -X POST -d '{"sql": "SELECT event_signature, count(*) as cnt FROM base.events WHERE address = lower('\''0xCONTRACT_ADDRESS'\'') AND block_timestamp >= now() - INTERVAL 1 HOUR GROUP BY event_signature ORDER BY cnt DESC LIMIT 20"}' --json
 ```
 
 ### Get latest block info
 
 ```bash
-npx awal@2.0.3 x402 pay https://x402.cdp.coinbase.com/platform/v2/data/query/run -X POST -d '{"sql": "SELECT block_number, timestamp, transaction_count, gas_used FROM base.blocks ORDER BY block_number DESC LIMIT 1"}' --json
+npx wal-sdk x402 pay https://x402.cdp.coinbase.com/platform/v2/data/query/run -X POST -d '{"sql": "SELECT block_number, timestamp, transaction_count, gas_used FROM base.blocks ORDER BY block_number DESC LIMIT 1"}' --json
 ```
 
 ## Common Contract Addresses (Base)
@@ -198,12 +206,12 @@ npx awal@2.0.3 x402 pay https://x402.cdp.coinbase.com/platform/v2/data/query/run
 
 ## Prerequisites
 
-- Must be authenticated (`npx awal@2.0.3 status` to check, see `authenticate-wallet` skill)
-- Wallet must have sufficient USDC balance (`npx awal@2.0.3 balance` to check)
+- Must be authenticated (`npx wal-sdk status` to check, see `authenticate-wallet` skill)
+- Wallet must have sufficient USDC balance (`npx wal-sdk balance` to check)
 - Each query costs $0.10 (100000 USDC atomic units)
 
 ## Error Handling
 
-- "Not authenticated" - Run `awal auth login <email>` first, or see `authenticate-wallet` skill
+- "Not authenticated" - Run `npx wal-sdk auth login <email>` first, or see `authenticate-wallet` skill
 - "Insufficient balance" - Fund wallet with USDC; see `fund` skill
 - Query timeout or error - Ensure you are filtering on indexed fields and using a LIMIT

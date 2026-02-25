@@ -677,7 +677,7 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen max-h-screen bg-white font-sans">
+    <div className="flex flex-col h-screen max-h-screen bg-[#f5f5f5] font-sans">
       <Header logoUrl={appConfig.logoUrl} title={appConfig.name} />
       <main
         ref={chatContainerRef}

@@ -1,6 +1,6 @@
-# Coinbase Agentic Wallet Skills
+# wal-sdk Skills
 
-[Agent Skills](https://agentskills.io) for crypto wallet operations. These skills enable AI agents to authenticate, send USDC, trade tokens and more using the [`awal`](https://www.npmjs.com/package/awal) CLI.
+[Agent Skills](https://agentskills.io) for crypto wallet operations. These skills enable AI agents to authenticate, send USDC, trade tokens and more using the [`awal`](https://www.npmjs.com/package/awal) / wal-sdk CLI.
 
 ## Available Skills
 
@@ -20,7 +20,7 @@
 Install with [Vercel's Skills CLI](https:/skills.sh):
 
 ```bash
-npx skills add coinbase/wal-sdk-skills
+npx skills add dentsusoken/vecrea-ai/projects/wal-sdk-skills
 ```
 
 ## Usage

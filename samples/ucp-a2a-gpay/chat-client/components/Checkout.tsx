@@ -158,8 +158,8 @@ const CheckoutComponent: React.FC<CheckoutProps> = ({
 
   return (
     <div className="flex w-full my-2 justify-start">
-      <div className="max-w-md bg-white rounded-lg shadow-lg p-4 border border-gray-200">
-        <h3 className="text-md font-bold text-gray-800 border-b pb-2 mb-3 flex items-center">
+      <div className="max-w-md bg-white rounded-lg shadow-lg p-4 border border-[#e0e0e0]">
+        <h3 className="text-md font-bold text-[#333] border-b border-[#e0e0e0] pb-2 mb-3 flex items-center">
           {showCartSummary ? (
             <>
               <svg
@@ -182,14 +182,14 @@ const CheckoutComponent: React.FC<CheckoutProps> = ({
           )}
         </h3>
         {showCartSummary && orderId && (
-          <p className="border-b pt-3 pb-3 text-sm font-semibold text-gray-800">
+          <p className="border-b border-[#e0e0e0] pt-3 pb-3 text-sm font-semibold text-[#333]">
             Order ID: {orderId}
           </p>
         )}
         {showCartSummary && customerDetails && (
-          <div className="border-b pt-3 pb-3 text-sm space-y-1">
-            <p className="font-semibold text-gray-700">Customer details</p>
-            <p className="text-gray-600">{customerDetails}</p>
+          <div className="border-b border-[#e0e0e0] pt-3 pb-3 text-sm space-y-1">
+            <p className="font-semibold text-[#333]">Customer details</p>
+            <p className="text-[#666]">{customerDetails}</p>
           </div>
         )}
         {showCartSummary && (
@@ -203,12 +203,12 @@ const CheckoutComponent: React.FC<CheckoutProps> = ({
                     className="w-16 h-16 object-cover rounded-md mr-4"
                   />
                   <div className="flex-grow">
-                    <p className="font-semibold text-gray-700">
+                    <p className="font-semibold text-[#333]">
                       {lineItem.item.title}
                     </p>
-                    <p className="text-gray-500">Qty: {lineItem.quantity}</p>
+                    <p className="text-[#666]">Qty: {lineItem.quantity}</p>
                   </div>
-                  <p className="text-gray-800 font-medium pl-2">
+                  <p className="text-[#333] font-medium pl-2">
                     {formatCurrency(
                       getItemTotal(lineItem).amount,
                       checkout.currency,
@@ -221,7 +221,7 @@ const CheckoutComponent: React.FC<CheckoutProps> = ({
               <div className="mt-3">
                 <button
                   onClick={() => setIsExpanded(!isExpanded)}
-                  className="text-sm text-blue-600 hover:underline w-full text-center">
+                  className="text-sm text-[#00a040] hover:underline w-full text-center">
                   {isExpanded
                     ? 'Show less'
                     : `Show ${checkout.line_items.length - 5} more items`}
@@ -232,22 +232,22 @@ const CheckoutComponent: React.FC<CheckoutProps> = ({
         )}
         {showCartSummary && (
           <>
-            <div className="border-t mt-4 pt-3 text-sm space-y-2">
+            <div className="border-t border-[#e0e0e0] mt-4 pt-3 text-sm space-y-2">
               {checkout.totals
                 .filter((t) => t.type !== 'total' && t.amount > 0)
                 .map((total) => (
                   <div
                     key={total.type}
                     className="flex justify-between items-center">
-                    <span className="text-gray-600">{total.display_text}</span>
-                    <span className="text-gray-800 font-medium">
+                    <span className="text-[#666]">{total.display_text}</span>
+                    <span className="text-[#333] font-medium">
                       {formatCurrency(total.amount, checkout.currency)}
                     </span>
                   </div>
                 ))}
             </div>
             {grandTotal && (
-              <div className="border-t mt-4 pt-3">
+              <div className="border-t border-[#e0e0e0] mt-4 pt-3">
                 <div className="flex justify-between items-center font-bold text-md">
                   <span>{grandTotal.display_text}</span>
                   <span>
@@ -259,34 +259,34 @@ const CheckoutComponent: React.FC<CheckoutProps> = ({
           </>
         )}
         {paymentDisplay && (
-          <div className="border-t mt-4 pt-3 pb-3 text-sm">
-            <p className="font-semibold text-gray-700 mb-1">
+            <div className="border-t border-[#e0e0e0] mt-4 pt-3 pb-3 text-sm">
+            <p className="font-semibold text-[#333] mb-1">
               Payment method
             </p>
-            <p className="text-gray-600">
+            <p className="text-[#666]">
               {String(paymentDisplay.brand ?? 'Card').toUpperCase()} ending in{' '}
               {paymentDisplay.last_digits ?? '****'}
             </p>
           </div>
         )}
         {showCartSummary && (
-          <p className="text-xs text-gray-400 mt-3 text-center">
+            <p className="text-xs text-[#999] mt-3 text-center">
             Checkout ID: {checkout.id}
           </p>
         )}
         {checkout.status !== 'completed' && (
-          <div className="border-t mt-4 pt-4 space-y-3">
+          <div className="border-t border-[#e0e0e0] mt-4 pt-4 space-y-3">
             {onCheckout && !paymentInstrument && (
               <button
                 onClick={onCheckout}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm">
+                className="w-full bg-[#00a040] hover:bg-[#006633] text-white font-bold py-2 px-4 rounded text-sm">
                 Start payment
               </button>
             )}
             {onCompletePayment && !paymentInstrument && (
               <button
                 onClick={() => onCompletePayment && onCompletePayment(checkout)}
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm">
+                className="w-full bg-[#00a040] hover:bg-[#006633] text-white font-bold py-2 px-4 rounded text-sm">
                 Complete Payment
               </button>
             )}
@@ -298,7 +298,7 @@ const CheckoutComponent: React.FC<CheckoutProps> = ({
                   onConfirmPayment(paymentInstrument);
                 }}
                 disabled={isConfirming}
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-sm disabled:bg-green-400 disabled:cursor-wait">
+                className="w-full bg-[#00a040] hover:bg-[#006633] text-white font-bold py-2 px-4 rounded text-sm disabled:bg-[#7DBB7C] disabled:cursor-wait">
                 {isConfirming ? (
                   <>
                     <svg
