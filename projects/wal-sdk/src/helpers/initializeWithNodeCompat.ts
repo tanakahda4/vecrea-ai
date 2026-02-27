@@ -1,7 +1,9 @@
 import { Config, initialize } from "@coinbase/cdp-core";
 import { isNode } from "./env";
 
-export const initializeWithNodeCompat = async (config: Config) => {
+export const initializeWithNodeCompat = async (
+  config: Config
+): Promise<void> => {
   if (!isNode) {
     return initialize(config);
   }
