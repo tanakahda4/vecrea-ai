@@ -1,4 +1,15 @@
-// Re-exports from zod.gen - replaces generated types.gen.ts
+#!/usr/bin/env node
+/**
+ * Post-process: Replace types.gen.ts with minimal re-exports from zod.gen.
+ * Removes the bulky types.gen and unifies to zod.gen.ts.
+ */
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+const generatedDir = join(process.cwd(), 'src/generated');
+const typesPath = join(generatedDir, 'types.gen.ts');
+
+const content = `// Re-exports from zod.gen - replaces generated types.gen.ts
 
 import type {
   Root,
@@ -13,7 +24,7 @@ import type {
 export * from './zod.gen';
 
 export type ClientOptions = {
-  baseUrl: `${string}://{endpoint}` | (string & {});
+  baseUrl: \`\${string}://{endpoint}\` | (string & {});
 };
 
 export type CreateCheckoutData = CreateCheckoutDataBase & { url: '/checkout-sessions' };
@@ -46,3 +57,6 @@ export type OrderEventWebhookWebhookRequest = {
 };
 
 export type Webhooks = OrderEventWebhookWebhookRequest;
+`;
+
+writeFileSync(typesPath, content);

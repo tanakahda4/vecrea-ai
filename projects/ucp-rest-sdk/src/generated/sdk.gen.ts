@@ -2,7 +2,8 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CancelCheckoutData, CancelCheckoutResponses, CompleteCheckoutData, CompleteCheckoutResponses, CreateCheckoutData, CreateCheckoutResponses, GetCheckoutData, GetCheckoutResponses, UpdateCheckoutData, UpdateCheckoutResponses } from './types.gen';
+import type { CancelCheckoutData, CompleteCheckoutData, CreateCheckoutData, GetCheckoutData, UpdateCheckoutData } from './types.gen';
+import type { CancelCheckoutResponse, CompleteCheckoutResponse, CreateCheckoutResponse, GetCheckoutResponse, UpdateCheckoutResponse } from './zod.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -23,7 +24,7 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
  *
  * Create a checkout session. Called as soon as a user adds an item to a cart.
  */
-export const createCheckout = <ThrowOnError extends boolean = false>(options: Options<CreateCheckoutData, ThrowOnError>) => (options.client ?? client).post<CreateCheckoutResponses, unknown, ThrowOnError>({
+export const createCheckout = <ThrowOnError extends boolean = false>(options: Options<CreateCheckoutData, ThrowOnError>) => (options.client ?? client).post<CreateCheckoutResponse, unknown, ThrowOnError>({
     url: '/checkout-sessions',
     ...options,
     headers: {
@@ -37,14 +38,14 @@ export const createCheckout = <ThrowOnError extends boolean = false>(options: Op
  *
  * Get the latest state of a checkout session.
  */
-export const getCheckout = <ThrowOnError extends boolean = false>(options: Options<GetCheckoutData, ThrowOnError>) => (options.client ?? client).get<GetCheckoutResponses, unknown, ThrowOnError>({ url: '/checkout-sessions/{id}', ...options });
+export const getCheckout = <ThrowOnError extends boolean = false>(options: Options<GetCheckoutData, ThrowOnError>) => (options.client ?? client).get<GetCheckoutResponse, unknown, ThrowOnError>({ url: '/checkout-sessions/{id}', ...options });
 
 /**
  * Update Checkout
  *
  * If an optional field is provided in the request body, its value is treated as a complete replacement for the corresponding data. If optional field is omitted, then current checkout session is unchanged.
  */
-export const updateCheckout = <ThrowOnError extends boolean = false>(options: Options<UpdateCheckoutData, ThrowOnError>) => (options.client ?? client).put<UpdateCheckoutResponses, unknown, ThrowOnError>({
+export const updateCheckout = <ThrowOnError extends boolean = false>(options: Options<UpdateCheckoutData, ThrowOnError>) => (options.client ?? client).put<UpdateCheckoutResponse, unknown, ThrowOnError>({
     url: '/checkout-sessions/{id}',
     ...options,
     headers: {
@@ -58,7 +59,7 @@ export const updateCheckout = <ThrowOnError extends boolean = false>(options: Op
  *
  * Place the order
  */
-export const completeCheckout = <ThrowOnError extends boolean = false>(options: Options<CompleteCheckoutData, ThrowOnError>) => (options.client ?? client).post<CompleteCheckoutResponses, unknown, ThrowOnError>({
+export const completeCheckout = <ThrowOnError extends boolean = false>(options: Options<CompleteCheckoutData, ThrowOnError>) => (options.client ?? client).post<CompleteCheckoutResponse, unknown, ThrowOnError>({
     url: '/checkout-sessions/{id}/complete',
     ...options,
     headers: {
@@ -72,4 +73,4 @@ export const completeCheckout = <ThrowOnError extends boolean = false>(options: 
  *
  * Cancel a checkout session
  */
-export const cancelCheckout = <ThrowOnError extends boolean = false>(options: Options<CancelCheckoutData, ThrowOnError>) => (options.client ?? client).post<CancelCheckoutResponses, unknown, ThrowOnError>({ url: '/checkout-sessions/{id}/cancel', ...options });
+export const cancelCheckout = <ThrowOnError extends boolean = false>(options: Options<CancelCheckoutData, ThrowOnError>) => (options.client ?? client).post<CancelCheckoutResponse, unknown, ThrowOnError>({ url: '/checkout-sessions/{id}/cancel', ...options });

@@ -24,6 +24,8 @@ export const zAdjustmentRoot = z.object({
     description: z.string().optional()
 });
 
+export type AdjustmentRoot = z.infer<typeof zAdjustmentRoot>;
+
 /**
  * Buyer
  */
@@ -33,6 +35,8 @@ export const zBuyerRoot = z.object({
     email: z.string().optional(),
     phone_number: z.string().optional()
 });
+
+export type BuyerRoot = z.infer<typeof zBuyerRoot>;
 
 /**
  * Context
@@ -44,6 +48,8 @@ export const zContextRoot = z.object({
     address_region: z.string().optional(),
     postal_code: z.string().optional()
 });
+
+export type ContextRoot = z.infer<typeof zContextRoot>;
 
 /**
  * Fulfillment Event
@@ -64,6 +70,8 @@ export const zFulfillmentEventRoot = z.object({
     description: z.string().optional()
 });
 
+export type FulfillmentEventRoot = z.infer<typeof zFulfillmentEventRoot>;
+
 /**
  * Item
  */
@@ -74,6 +82,8 @@ export const zItemRoot = z.object({
     image_url: z.string().url().optional()
 });
 
+export type ItemRoot = z.infer<typeof zItemRoot>;
+
 /**
  * Link
  */
@@ -82,6 +92,8 @@ export const zLinkRoot = z.object({
     url: z.string().url(),
     title: z.string().optional()
 });
+
+export type LinkRoot = z.infer<typeof zLinkRoot>;
 
 /**
  * Message Error
@@ -99,6 +111,8 @@ export const zMessageErrorRoot = z.object({
     ])
 });
 
+export type MessageErrorRoot = z.infer<typeof zMessageErrorRoot>;
+
 /**
  * Message Info
  */
@@ -109,6 +123,8 @@ export const zMessageInfoRoot = z.object({
     content_type: z.enum(['plain', 'markdown']).optional(),
     content: z.string()
 });
+
+export type MessageInfoRoot = z.infer<typeof zMessageInfoRoot>;
 
 /**
  * Message Warning
@@ -121,6 +137,8 @@ export const zMessageWarningRoot = z.object({
     content_type: z.enum(['plain', 'markdown']).optional()
 });
 
+export type MessageWarningRoot = z.infer<typeof zMessageWarningRoot>;
+
 /**
  * Message
  *
@@ -132,6 +150,8 @@ export const zMessageRoot = z.union([
     zMessageInfoRoot
 ]);
 
+export type MessageRoot = z.infer<typeof zMessageRoot>;
+
 /**
  * Order Confirmation
  *
@@ -142,6 +162,8 @@ export const zOrderConfirmationRoot = z.object({
     permalink_url: z.string().url()
 });
 
+export type OrderConfirmationRoot = z.infer<typeof zOrderConfirmationRoot>;
+
 /**
  * Payment Credential
  *
@@ -150,6 +172,8 @@ export const zOrderConfirmationRoot = z.object({
 export const zPaymentCredentialRoot = z.object({
     type: z.string()
 });
+
+export type PaymentCredentialRoot = z.infer<typeof zPaymentCredentialRoot>;
 
 /**
  * Postal Address
@@ -165,6 +189,8 @@ export const zPostalAddressRoot = z.object({
     last_name: z.string().optional(),
     phone_number: z.string().optional()
 });
+
+export type PostalAddressRoot = z.infer<typeof zPostalAddressRoot>;
 
 /**
  * Expectation
@@ -187,6 +213,8 @@ export const zExpectationRoot = z.object({
     fulfillable_on: z.string().optional()
 });
 
+export type ExpectationRoot = z.infer<typeof zExpectationRoot>;
+
 /**
  * Payment Instrument
  *
@@ -201,6 +229,8 @@ export const zPaymentInstrumentRoot = z.object({
     display: z.record(z.unknown()).optional()
 });
 
+export type PaymentInstrumentRoot = z.infer<typeof zPaymentInstrumentRoot>;
+
 /**
  * Selected Payment Instrument
  *
@@ -209,6 +239,8 @@ export const zPaymentInstrumentRoot = z.object({
 export const zSelectedPaymentInstrument = zPaymentInstrumentRoot.and(z.object({
     selected: z.boolean().optional()
 }));
+
+export type SelectedPaymentInstrument = z.infer<typeof zSelectedPaymentInstrument>;
 
 /**
  * Payment
@@ -219,7 +251,11 @@ export const zPaymentRoot = z.object({
     instruments: z.array(zSelectedPaymentInstrument).optional()
 });
 
+export type PaymentRoot = z.infer<typeof zPaymentRoot>;
+
 export const zPayment = zPaymentRoot;
+
+export type Payment = z.infer<typeof zPayment>;
 
 /**
  * Total
@@ -238,6 +274,8 @@ export const zTotalRoot = z.object({
     amount: z.number().int().gte(0)
 });
 
+export type TotalRoot = z.infer<typeof zTotalRoot>;
+
 /**
  * Line Item
  *
@@ -250,6 +288,8 @@ export const zLineItemRoot = z.object({
     totals: z.array(zTotalRoot),
     parent_id: z.string().optional()
 });
+
+export type LineItemRoot = z.infer<typeof zLineItemRoot>;
 
 /**
  * Order Line Item
@@ -270,6 +310,8 @@ export const zOrderLineItemRoot = z.object({
     parent_id: z.string().optional()
 });
 
+export type OrderLineItemRoot = z.infer<typeof zOrderLineItemRoot>;
+
 /**
  * Embedded Transport Config
  *
@@ -279,6 +321,8 @@ export const zEmbeddedConfigRoot = z.object({
     delegate: z.array(z.string()).optional()
 });
 
+export type EmbeddedConfigRoot = z.infer<typeof zEmbeddedConfigRoot>;
+
 /**
  * UCP Metadata
  *
@@ -286,17 +330,25 @@ export const zEmbeddedConfigRoot = z.object({
  */
 export const zUcpRoot = z.unknown();
 
+export type UcpRoot = z.infer<typeof zUcpRoot>;
+
 export const zUcp = zUcpRoot;
+
+export type Ucp = z.infer<typeof zUcp>;
 
 /**
  * Reverse-domain identifier (e.g., com.google.pay, dev.ucp.shopping.checkout)
  */
 export const zReverseDomainName = z.string().regex(/^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9_]*)+$/);
 
+export type ReverseDomainName = z.infer<typeof zReverseDomainName>;
+
 /**
  * UCP version in YYYY-MM-DD format.
  */
 export const zVersion = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+
+export type Version = z.infer<typeof zVersion>;
 
 /**
  * Shared foundation for all UCP entities.
@@ -309,9 +361,13 @@ export const zEntity = z.object({
     config: z.record(z.unknown()).optional()
 });
 
+export type Entity = z.infer<typeof zEntity>;
+
 export const zBase = zEntity.and(z.object({
     extends: z.string().regex(/^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9_]*)+$/).optional()
 }));
+
+export type Base = z.infer<typeof zBase>;
 
 /**
  * Capability (Business Schema)
@@ -320,12 +376,16 @@ export const zBase = zEntity.and(z.object({
  */
 export const zBusinessSchema = zBase;
 
+export type BusinessSchema = z.infer<typeof zBusinessSchema>;
+
 /**
  * Capability (Platform Schema)
  *
  * Full capability declaration for platform-level discovery. Includes spec/schema URLs for agent fetching.
  */
 export const zPlatformSchema = zBase.and(z.unknown());
+
+export type PlatformSchema = z.infer<typeof zPlatformSchema>;
 
 /**
  * Capability (Response Schema)
@@ -334,7 +394,11 @@ export const zPlatformSchema = zBase.and(z.unknown());
  */
 export const zResponseSchema = zBase;
 
+export type ResponseSchema = z.infer<typeof zResponseSchema>;
+
 export const zPaymentHandlerBase = zEntity.and(z.record(z.unknown()));
+
+export type PaymentHandlerBase = z.infer<typeof zPaymentHandlerBase>;
 
 /**
  * Payment Handler (Business Schema)
@@ -343,6 +407,8 @@ export const zPaymentHandlerBase = zEntity.and(z.record(z.unknown()));
  */
 export const zPaymentHandlerBusinessSchema = zPaymentHandlerBase;
 
+export type PaymentHandlerBusinessSchema = z.infer<typeof zPaymentHandlerBusinessSchema>;
+
 /**
  * Payment Handler (Platform Schema)
  *
@@ -350,12 +416,16 @@ export const zPaymentHandlerBusinessSchema = zPaymentHandlerBase;
  */
 export const zPaymentHandlerPlatformSchema = zPaymentHandlerBase.and(z.unknown());
 
+export type PaymentHandlerPlatformSchema = z.infer<typeof zPaymentHandlerPlatformSchema>;
+
 /**
  * Payment Handler (Response Schema)
  *
  * Handler reference in responses. May include full config state for runtime usage of the handler.
  */
 export const zPaymentHandlerResponseSchema = zPaymentHandlerBase;
+
+export type PaymentHandlerResponseSchema = z.infer<typeof zPaymentHandlerResponseSchema>;
 
 export const zServiceBase = zEntity.and(z.object({
     transport: z.enum([
@@ -366,6 +436,8 @@ export const zServiceBase = zEntity.and(z.object({
     ]),
     endpoint: z.string().url().optional()
 }));
+
+export type ServiceBase = z.infer<typeof zServiceBase>;
 
 /**
  * Service (Business Schema)
@@ -388,6 +460,8 @@ export const zServiceBusinessSchema = zServiceBase.and(z.union([
     })
 ]));
 
+export type ServiceBusinessSchema = z.infer<typeof zServiceBusinessSchema>;
+
 /**
  * Service (Platform Schema)
  *
@@ -407,6 +481,8 @@ export const zServicePlatformSchema = zServiceBase.and(z.unknown()).and(z.union(
         transport: z.literal('embedded').optional()
     })
 ]));
+
+export type ServicePlatformSchema = z.infer<typeof zServicePlatformSchema>;
 
 /**
  * Service (Response Schema)
@@ -429,6 +505,8 @@ export const zServiceResponseSchema = zServiceBase.and(z.union([
     })
 ]));
 
+export type ServiceResponseSchema = z.infer<typeof zServiceResponseSchema>;
+
 /**
  * Base UCP metadata with shared properties for all schema types.
  */
@@ -438,6 +516,8 @@ export const zUcpBase = z.object({
     capabilities: z.record(z.array(zBase)).optional(),
     payment_handlers: z.record(z.array(zPaymentHandlerBase)).optional()
 });
+
+export type UcpBase = z.infer<typeof zUcpBase>;
 
 /**
  * UCP Checkout Response Schema
@@ -449,6 +529,8 @@ export const zResponseCheckoutSchema = zUcpBase.and(z.object({
     capabilities: z.unknown().optional(),
     payment_handlers: z.unknown()
 }));
+
+export type ResponseCheckoutSchema = z.infer<typeof zResponseCheckoutSchema>;
 
 /**
  * Checkout
@@ -479,7 +561,11 @@ export const zRoot = z.object({
     order: zOrderConfirmationRoot.optional()
 });
 
+export type Root = z.infer<typeof zRoot>;
+
 export const zCheckout = zRoot;
+
+export type Checkout = z.infer<typeof zCheckout>;
 
 /**
  * UCP Order Response Schema
@@ -489,6 +575,8 @@ export const zCheckout = zRoot;
 export const zResponseOrderSchema = zUcpBase.and(z.object({
     capabilities: z.unknown().optional()
 }));
+
+export type ResponseOrderSchema = z.infer<typeof zResponseOrderSchema>;
 
 /**
  * Order
@@ -509,62 +597,88 @@ export const zOrderRoot = z.object({
     totals: z.array(zTotalRoot)
 });
 
+export type OrderRoot = z.infer<typeof zOrderRoot>;
+
 export const zOrder = zOrderRoot;
+
+export type Order = z.infer<typeof zOrder>;
 
 /**
  * The unique identifier of the checkout session.
  */
 export const zCheckoutSessionIdPath = z.string();
 
+export type CheckoutSessionIdPath = z.infer<typeof zCheckoutSessionIdPath>;
+
 /**
  * Should contain oauth token representing the following 2 schemes: 1. Platform self authenticating (client_credentials). 2. Platform authenticating on behalf of end user (authorization_code).
  */
 export const zAuthorization = z.string();
+
+export type Authorization = z.infer<typeof zAuthorization>;
 
 /**
  * Authenticates the platform with a reusable api key allocated to the platform by the business.
  */
 export const zXApiKey = z.string();
 
+export type XApiKey = z.infer<typeof zXApiKey>;
+
 /**
  * Ensure the authenticity and integrity of an HTTP message.
  */
 export const zRequestSignature = z.string();
+
+export type RequestSignature = z.infer<typeof zRequestSignature>;
 
 /**
  * Ensures duplicate operations don't happen during retries.
  */
 export const zIdempotencyKey = z.string().uuid();
 
+export type IdempotencyKey = z.infer<typeof zIdempotencyKey>;
+
 /**
  * For tracing the requests across network layers and components.
  */
 export const zRequestId = z.string().uuid();
+
+export type RequestId = z.infer<typeof zRequestId>;
 
 /**
  * Identifies the user agent string making the call.
  */
 export const zUserAgent = z.string();
 
+export type UserAgent = z.infer<typeof zUserAgent>;
+
 /**
  * Representation Metadata. Tells the receiver what the data in the message body actually is.
  */
 export const zContentType = z.string();
+
+export type ContentType = z.infer<typeof zContentType>;
 
 /**
  * Content Negotiation. The client tells the server what data formats it is capable of understanding.
  */
 export const zAccept = z.string();
 
+export type Accept = z.infer<typeof zAccept>;
+
 /**
  * Localization. Tells the receiver the user's preferred natural languages, often with "weights" or priorities.
  */
 export const zAcceptLanguage = z.string();
 
+export type AcceptLanguage = z.infer<typeof zAcceptLanguage>;
+
 /**
  * Compression. The client tells the server which content-codings it supports, usually for compression
  */
 export const zAcceptEncoding = z.string();
+
+export type AcceptEncoding = z.infer<typeof zAcceptEncoding>;
 
 export const zCreateCheckoutData = z.object({
     body: zRoot,
@@ -584,10 +698,14 @@ export const zCreateCheckoutData = z.object({
     })
 });
 
+export type CreateCheckoutData = z.infer<typeof zCreateCheckoutData>;
+
 /**
  * Checkout session created
  */
 export const zCreateCheckoutResponse = zRoot;
+
+export type CreateCheckoutResponse = z.infer<typeof zCreateCheckoutResponse>;
 
 export const zGetCheckoutData = z.object({
     body: z.never().optional(),
@@ -608,10 +726,14 @@ export const zGetCheckoutData = z.object({
     })
 });
 
+export type GetCheckoutData = z.infer<typeof zGetCheckoutData>;
+
 /**
  * Checkout session retrieved
  */
 export const zGetCheckoutResponse = zRoot;
+
+export type GetCheckoutResponse = z.infer<typeof zGetCheckoutResponse>;
 
 export const zUpdateCheckoutData = z.object({
     body: zRoot,
@@ -633,10 +755,14 @@ export const zUpdateCheckoutData = z.object({
     })
 });
 
+export type UpdateCheckoutData = z.infer<typeof zUpdateCheckoutData>;
+
 /**
  * Checkout session updated
  */
 export const zUpdateCheckoutResponse = zRoot;
+
+export type UpdateCheckoutResponse = z.infer<typeof zUpdateCheckoutResponse>;
 
 export const zCompleteCheckoutData = z.object({
     body: zRoot.and(z.object({
@@ -660,10 +786,14 @@ export const zCompleteCheckoutData = z.object({
     })
 });
 
+export type CompleteCheckoutData = z.infer<typeof zCompleteCheckoutData>;
+
 /**
  * Checkout session completed
  */
 export const zCompleteCheckoutResponse = zRoot;
+
+export type CompleteCheckoutResponse = z.infer<typeof zCompleteCheckoutResponse>;
 
 export const zCancelCheckoutData = z.object({
     body: z.never().optional(),
@@ -685,10 +815,14 @@ export const zCancelCheckoutData = z.object({
     })
 });
 
+export type CancelCheckoutData = z.infer<typeof zCancelCheckoutData>;
+
 /**
  * Checkout session canceled
  */
 export const zCancelCheckoutResponse = zRoot;
+
+export type CancelCheckoutResponse = z.infer<typeof zCancelCheckoutResponse>;
 
 export const zOrderEventWebhookWebhookRequest = z.object({
     body: zOrderRoot.and(z.object({

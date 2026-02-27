@@ -8,4 +8,8 @@ export default defineConfig(
   },
   eslint.configs.recommended,
   tseslint.configs.recommended,
+  {
+    files: ['scripts/**/*.mjs'],
+    languageOptions: { globals: { process: 'readonly' } },
+  },
 );

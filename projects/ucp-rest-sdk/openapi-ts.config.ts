@@ -5,20 +5,29 @@ export const OPENAPI_URL =
 
 /**
  * Generates TypeScript types, Zod schemas, client, and SDK from the UCP OpenAPI spec.
- * Output: src/generated (types.gen.ts, zod.gen.ts, client.gen.ts, sdk.gen.ts)
+ * Output: src/generated (zod.gen.ts, client.gen.ts, sdk.gen.ts).
+ * types.gen.ts is replaced by post-process with minimal re-exports from zod.gen.
  */
 export default defineConfig({
   input: OPENAPI_URL,
   output: {
     path: 'src/generated',
-    clean: false,
+    postProcess: [{ command: 'node', args: ['scripts/replace-types-with-zod.mjs'] }],
   },
   plugins: [
-    '@hey-api/typescript',
     {
       name: 'zod',
-      requests: true,
-      responses: true,
+      requests: {
+        types: { infer: { name: '{{name}}Data' } },
+      },
+      responses: {
+        types: { infer: { name: '{{name}}Response' } },
+      },
+      definitions: {
+        types: {
+          infer: { name: '{{name}}' },
+        },
+      },
     },
     '@hey-api/client-fetch',
     '@hey-api/sdk',
