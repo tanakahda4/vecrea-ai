@@ -68,10 +68,12 @@ describe('buildPaymentHandlers', () => {
       },
     });
 
-    expect(
-      result['com.google.pay'][0].config?.allowed_payment_methods?.[0]
-        ?.tokenization_specification?.parameters,
-    ).toEqual({
+    const params = (
+      result['com.google.pay']?.[0]?.config?.allowed_payment_methods as
+        | Array<{ tokenization_specification?: { parameters?: unknown } }>
+        | undefined
+    )?.[0]?.tokenization_specification?.parameters;
+    expect(params).toEqual({
       gateway: 'example',
       gatewayMerchantId: 'exampleId',
     });

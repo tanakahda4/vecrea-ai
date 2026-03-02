@@ -66,7 +66,7 @@ describe('buildDiscoveryProfile', () => {
       },
     });
 
-    expect(result.ucp.services['dev.ucp.shopping'][0].endpoint).toBe(
+    expect(result.ucp.services!['dev.ucp.shopping'][0].endpoint).toBe(
       'https://api.example.com/ucp/v1',
     );
   });
@@ -91,7 +91,7 @@ describe('buildDiscoveryProfile', () => {
       },
     });
 
-    expect(result.ucp.payment_handlers['com.google.pay'][0].id).toBe(
+    expect(result.ucp.payment_handlers!['com.google.pay'][0].id).toBe(
       'gpay-custom',
     );
   });

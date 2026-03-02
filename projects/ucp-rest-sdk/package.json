@@ -4,6 +4,8 @@
   "scripts": {
     "dev": "tsx watch src/common/index.ts",
     "build": "vite build",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
     "generate": "openapi-ts",
     "lint": "eslint .",
     "format": "prettier --write"
@@ -34,11 +36,6 @@
   },
   "main": "./dist/common/index.cjs",
   "exports": {
-    ".": {
-      "types": "./dist/common/index.d.ts",
-      "import": "./dist/common/index.mjs",
-      "require": "./dist/common/index.cjs"
-    },
     "./generated": {
       "types": "./dist/generated/index.d.ts",
       "import": "./dist/generated/index.mjs",

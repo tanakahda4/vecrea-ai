@@ -13,6 +13,7 @@ export default defineConfig({
       entryRoot: 'src',
       outDir: 'dist',
       include: ['src/generated', 'src/server', 'src/client', 'src/common'],
+      exclude: ['**/__tests__/**', '**/*.spec.ts', '**/*.test.ts'],
       tsconfigPath: './tsconfig.json',
     }),
   ],
