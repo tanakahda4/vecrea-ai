@@ -11,9 +11,6 @@
     "format": "prettier --write"
   },
   "dependencies": {
-    "@hono/node-server": "^1.19.6",
-    "@hono/zod-validator": "^0.7.6",
-    "uuid": "^9.0.1",
     "zod": "^3.25.76"
   },
   "devDependencies": {
@@ -34,7 +31,6 @@
   "overrides": {
     "minimatch": ">=10.2.1"
   },
-  "main": "./dist/common/index.cjs",
   "exports": {
     "./generated": {
       "types": "./dist/generated/index.d.ts",

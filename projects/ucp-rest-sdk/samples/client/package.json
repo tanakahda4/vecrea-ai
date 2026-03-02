@@ -1,0 +1,19 @@
+{
+  "name": "client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "cd ../.. && (OUTPUT=$(pnpm run build 2>&1); CODE=$?; [ $CODE -eq 0 ] || { echo \"$OUTPUT\"; exit $CODE; }) && cd samples/client && tsx src/main.ts",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "ucp-rest-sdk": "link:../.."
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "eslint": "^9",
+    "tsx": "^4.7.1",
+    "typescript": "^5"
+  }
+}

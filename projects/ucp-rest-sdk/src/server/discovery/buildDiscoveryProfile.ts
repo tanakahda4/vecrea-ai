@@ -1,7 +1,4 @@
-import type {
-  SigningKey,
-  UcpDiscoveryProfile,
-} from '../models/discovery/profileSchema';
+import type { SigningKey, UcpDiscoveryProfile } from 'ucp-rest-sdk/common';
 import {
   buildCapabilities,
   type BuildCapabilitiesParams,

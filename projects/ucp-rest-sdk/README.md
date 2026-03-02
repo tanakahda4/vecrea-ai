@@ -115,11 +115,12 @@ Available SDK functions: `createCheckout`, `getCheckout`, `updateCheckout`, `com
 | [samples/nextjs](samples/nextjs) | Next.js App Router – UCP Discovery Profile at `/business/.well-known/ucp` |
 | [samples/express](samples/express) | Express.js – UCP Discovery Profile at `/.well-known/ucp` |
 | [samples/hono](samples/hono) | Hono – UCP Discovery Profile at `/.well-known/ucp` |
+| [samples/client](samples/client) | Client – consumes UCP API via `ucp-rest-sdk/generated` |
 
 From the `ucp-rest-sdk` directory:
 
 ```bash
-cd samples/nextjs   # or samples/express or samples/hono
+cd samples/nextjs   # or samples/express or samples/hono or samples/client
 pnpm install
 pnpm dev
 ```
