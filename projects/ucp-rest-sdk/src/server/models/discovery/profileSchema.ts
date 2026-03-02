@@ -34,13 +34,25 @@ export const zSigningKey = z.object({
 });
 
 /**
+ * TypeScript type representing an EC signing key (JWK) for UCP,
+ * inferred from the zod schema zSigningKey.
+ */
+export type SigningKey = z.infer<typeof zSigningKey>;
+
+/**
  * UCP discovery profile schema.
  * Returned at profile URL (e.g. from UCP-Agent header).
  * signing_keys are required to verify x-detached-jwt in API responses.
  */
-export const UcpDiscoveryProfile = z.object({
+export const zUcpDiscoveryProfile = z.object({
   /** UCP metadata: version, services, capabilities, payment handlers */
   ucp: zUcpBase,
   /** EC public keys for verifying x-detached-jwt. At least one required. */
   signing_keys: z.array(zSigningKey),
 });
+
+/**
+ * TypeScript type representing a UCP discovery profile,
+ * inferred from the zod schema zUcpDiscoveryProfile.
+ */
+export type UcpDiscoveryProfile = z.infer<typeof zUcpDiscoveryProfile>;
