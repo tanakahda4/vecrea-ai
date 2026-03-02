@@ -2,6 +2,20 @@ import { describe, expect, it } from 'vitest';
 import { buildServices } from '../buildServices';
 
 describe('buildServices', () => {
+  it('returns services object with default values when called with no arguments', () => {
+    const result = buildServices();
+
+    expect(result).toHaveProperty('dev.ucp.shopping');
+    expect(result['dev.ucp.shopping']).toHaveLength(1);
+    expect(result['dev.ucp.shopping'][0]).toEqual({
+      version: '2026-01-23',
+      spec: 'https://ucp.dev/specification/overview',
+      transport: 'rest',
+      endpoint: 'https://business.example.com/ucp/v1',
+      schema: 'https://ucp.dev/2026-01-23/services/shopping/openapi.json',
+    });
+  });
+
   it('returns services object with dev.ucp.shopping', () => {
     const result = buildServices({
       shopping: { endpoint: 'https://business.example.com/ucp/v1' },

@@ -6,8 +6,8 @@ import type { ServiceBase } from '@/generated/zod.gen';
  * Parameters for building the services object,
  * including configuration for the shopping service.
  */
-interface BuildServicesParams {
-  shopping: BuildShoppingRestServiceParams;
+export interface BuildServicesParams {
+  shopping?: BuildShoppingRestServiceParams;
 }
 
 /**
@@ -24,7 +24,7 @@ interface BuildServicesResponse {
  * @returns An object mapping service identifiers to ServiceBase arrays.
  */
 export const buildServices = (
-  params: BuildServicesParams,
+  params: BuildServicesParams = {},
 ): BuildServicesResponse => {
   return {
     'dev.ucp.shopping': [buildShoppingRestService(params.shopping)],

@@ -3,7 +3,7 @@ import type { ServiceBase } from '@/generated/zod.gen';
 /** Parameters for building a dev.ucp.shopping REST service entry */
 export interface BuildShoppingRestServiceParams {
   /** REST API base URL (e.g. https://business.example.com/ucp/v1) */
-  endpoint: string;
+  endpoint?: string;
   /** UCP version (YYYY-MM-DD). Defaults to 2026-01-23 */
   version?: string;
 }
@@ -13,9 +13,9 @@ export interface BuildShoppingRestServiceParams {
  * Used in Business Profile services.dev.ucp.shopping array.
  */
 export const buildShoppingRestService = ({
-  endpoint,
+  endpoint = 'https://business.example.com/ucp/v1',
   version = '2026-01-23',
-}: BuildShoppingRestServiceParams): ServiceBase => {
+}: BuildShoppingRestServiceParams = {}): ServiceBase => {
   return {
     version,
     spec: 'https://ucp.dev/specification/overview',

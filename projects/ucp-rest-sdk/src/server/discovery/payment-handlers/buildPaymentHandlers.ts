@@ -1,6 +1,6 @@
 import { buildGpayPaymentHandler } from './gpay';
 import type { BuildGpayPaymentHandlerParams } from './gpay';
-import type { GpayPaymentHandler } from './gpay/gpayPaymentHandler';
+import type { PaymentHandlerBase } from '@/generated/zod.gen';
 
 /** Parameters for building payment handlers map */
 export interface BuildPaymentHandlersParams {
@@ -10,7 +10,7 @@ export interface BuildPaymentHandlersParams {
 
 /** Response shape for payment_handlers in UCP discovery profile */
 interface BuildPaymentHandlersResponse {
-  'com.google.pay': GpayPaymentHandler[];
+  [key: string]: PaymentHandlerBase[];
 }
 
 /**
@@ -22,6 +22,8 @@ export const buildPaymentHandlers = (
   params: BuildPaymentHandlersParams = {},
 ): BuildPaymentHandlersResponse => {
   return {
-    'com.google.pay': [buildGpayPaymentHandler(params.gpay)],
+    'com.google.pay': [
+      buildGpayPaymentHandler(params.gpay) as unknown as PaymentHandlerBase,
+    ],
   };
 };
