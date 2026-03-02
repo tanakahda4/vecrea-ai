@@ -110,15 +110,21 @@ Available SDK functions: `createCheckout`, `getCheckout`, `updateCheckout`, `com
 
 ## Samples
 
-The [samples/nextjs](samples/nextjs) directory contains a Next.js App Router sample. From the `ucp-rest-sdk` directory:
+| Sample | Description |
+|--------|-------------|
+| [samples/nextjs](samples/nextjs) | Next.js App Router – UCP Discovery Profile at `/business/.well-known/ucp` |
+| [samples/express](samples/express) | Express.js – UCP Discovery Profile at `/.well-known/ucp` |
+
+From the `ucp-rest-sdk` directory:
 
 ```bash
-cd samples/nextjs
+cd samples/nextjs   # or samples/express
 pnpm install
 pnpm dev
 ```
 
-After starting the dev server, access [http://localhost:3000/business/.well-known/ucp](http://localhost:3000/business/.well-known/ucp) to retrieve the UCP Discovery Profile.
+- Next.js: [http://localhost:3000/business/.well-known/ucp](http://localhost:3000/business/.well-known/ucp)
+- Express: [http://localhost:3000/.well-known/ucp](http://localhost:3000/.well-known/ucp)
 
 ## Scripts
 
