@@ -2,11 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { buildGpayPaymentHandler } from '../gpay';
 
 describe('buildGpayPaymentHandler', () => {
-  it('returns array with one handler when called with no arguments', () => {
+  it('returns handler when called with no arguments', () => {
     const result = buildGpayPaymentHandler();
 
-    expect(result).toHaveLength(1);
-    expect(result[0]).toMatchObject({
+    expect(result).toMatchObject({
       id: 'gpay-stripe',
       name: 'com.google.pay',
       version: '2026-01-23',
@@ -22,7 +21,7 @@ describe('buildGpayPaymentHandler', () => {
   it('uses default config when called with no arguments', () => {
     const result = buildGpayPaymentHandler();
 
-    expect(result[0].config).toEqual({
+    expect(result.config).toEqual({
       api_version: 2,
       api_version_minor: 0,
       environment: 'TEST',
@@ -53,19 +52,19 @@ describe('buildGpayPaymentHandler', () => {
   it('uses custom id when provided', () => {
     const result = buildGpayPaymentHandler({ id: 'gpay-custom' });
 
-    expect(result[0].id).toBe('gpay-custom');
+    expect(result.id).toBe('gpay-custom');
   });
 
   it('uses custom version when provided', () => {
     const result = buildGpayPaymentHandler({ version: '2026-01-11' });
 
-    expect(result[0].version).toBe('2026-01-11');
+    expect(result.version).toBe('2026-01-11');
   });
 
   it('uses custom environment when provided', () => {
     const result = buildGpayPaymentHandler({ environment: 'PRODUCTION' });
 
-    expect(result[0].config?.environment).toBe('PRODUCTION');
+    expect(result.config?.environment).toBe('PRODUCTION');
   });
 
   it('uses custom merchantInfo when provided', () => {
@@ -77,7 +76,7 @@ describe('buildGpayPaymentHandler', () => {
       },
     });
 
-    expect(result[0].config?.merchant_info).toEqual({
+    expect(result.config?.merchant_info).toEqual({
       merchant_id: '01234567890123456789',
       merchant_name: 'Example Merchant',
       merchant_origin: 'checkout.merchant.com',
@@ -90,7 +89,7 @@ describe('buildGpayPaymentHandler', () => {
     });
 
     expect(
-      result[0].config?.allowed_payment_methods?.[0]?.parameters
+      result.config?.allowed_payment_methods?.[0]?.parameters
         ?.allowed_auth_methods,
     ).toEqual(['PAN_ONLY', 'CRYPTOGRAM_3DS']);
   });
@@ -101,7 +100,7 @@ describe('buildGpayPaymentHandler', () => {
     });
 
     expect(
-      result[0].config?.allowed_payment_methods?.[0]?.parameters
+      result.config?.allowed_payment_methods?.[0]?.parameters
         ?.allowed_card_networks,
     ).toEqual(['VISA', 'MASTERCARD', 'AMEX']);
   });
@@ -115,7 +114,7 @@ describe('buildGpayPaymentHandler', () => {
     });
 
     expect(
-      result[0].config?.allowed_payment_methods?.[0]?.tokenization_specification
+      result.config?.allowed_payment_methods?.[0]?.tokenization_specification
         ?.parameters,
     ).toEqual({
       gateway: 'example',
@@ -133,7 +132,7 @@ describe('buildGpayPaymentHandler', () => {
     });
 
     expect(
-      result[0].config?.allowed_payment_methods?.[0]?.tokenization_specification
+      result.config?.allowed_payment_methods?.[0]?.tokenization_specification
         ?.parameters,
     ).toEqual({
       gateway: 'stripe',

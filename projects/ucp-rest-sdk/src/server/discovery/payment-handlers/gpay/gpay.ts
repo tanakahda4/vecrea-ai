@@ -28,11 +28,12 @@ export interface BuildGpayPaymentHandlerParams {
 
 /**
  * Builds a Google Pay payment handler declaration for UCP discovery profiles.
- * Returns an array suitable for payment_handlers["com.google.pay"].
+ *
+ * @returns A single handler object. Wrap in array for payment_handlers["com.google.pay"].
  */
 export const buildGpayPaymentHandler = (
   params: BuildGpayPaymentHandlerParams = {},
-): GpayPaymentHandler[] => {
+): GpayPaymentHandler => {
   const {
     id,
     version,
@@ -43,42 +44,40 @@ export const buildGpayPaymentHandler = (
     tokenizationParameters,
   } = params;
 
-  return [
-    {
-      id: id || 'gpay-stripe',
-      name: 'com.google.pay',
-      version: version || '2026-01-23',
-      spec: 'https://pay.google.com/gp/p/ucp/2026-01-11/',
-      config_schema:
-        'https://pay.google.com/gp/p/ucp/2026-01-11/schemas/config.json',
-      instrument_schemas: [
-        'https://pay.google.com/gp/p/ucp/2026-01-11/schemas/card_payment_instrument.json',
-      ],
-      config: {
-        api_version: 2,
-        api_version_minor: 0,
-        environment: environment || 'TEST',
-        merchant_info: merchantInfo || {
-          merchant_id: 'TEST',
-          merchant_name: 'Test Merchant',
-        },
-        allowed_payment_methods: [
-          {
-            type: 'CARD',
-            parameters: {
-              allowed_auth_methods: allowedAuthMethods || ['PAN_ONLY'],
-              allowed_card_networks: allowedCardNetworks || [
-                'VISA',
-                'MASTERCARD',
-              ],
-            },
-            tokenization_specification: {
-              type: 'PAYMENT_GATEWAY',
-              parameters: tokenizationParameters || buildGpayStripeGateway(),
-            },
-          },
-        ],
+  return {
+    id: id || 'gpay-stripe',
+    name: 'com.google.pay',
+    version: version || '2026-01-23',
+    spec: 'https://pay.google.com/gp/p/ucp/2026-01-11/',
+    config_schema:
+      'https://pay.google.com/gp/p/ucp/2026-01-11/schemas/config.json',
+    instrument_schemas: [
+      'https://pay.google.com/gp/p/ucp/2026-01-11/schemas/card_payment_instrument.json',
+    ],
+    config: {
+      api_version: 2,
+      api_version_minor: 0,
+      environment: environment || 'TEST',
+      merchant_info: merchantInfo || {
+        merchant_id: 'TEST',
+        merchant_name: 'Test Merchant',
       },
+      allowed_payment_methods: [
+        {
+          type: 'CARD',
+          parameters: {
+            allowed_auth_methods: allowedAuthMethods || ['PAN_ONLY'],
+            allowed_card_networks: allowedCardNetworks || [
+              'VISA',
+              'MASTERCARD',
+            ],
+          },
+          tokenization_specification: {
+            type: 'PAYMENT_GATEWAY',
+            parameters: tokenizationParameters || buildGpayStripeGateway(),
+          },
+        },
+      ],
     },
-  ];
-};
+  };
+}
