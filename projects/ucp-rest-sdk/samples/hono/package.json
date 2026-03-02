@@ -1,0 +1,23 @@
+{
+  "name": "hono",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "cd ../.. && pnpm run build && cd samples/hono && tsx src/index.ts",
+    "build": "cd ../.. && pnpm run build",
+    "start": "cd ../.. && pnpm run build && cd samples/hono && tsx src/index.ts",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "ucp-rest-sdk": "link:../..",
+    "hono": "^4.12.3",
+    "@hono/node-server": "^1.19.6"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "eslint": "^9",
+    "tsx": "^4.7.1",
+    "typescript": "^5"
+  }
+}
