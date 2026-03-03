@@ -6,7 +6,8 @@
     "build": "vite build",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "generate": "openapi-ts",
+    "fetch-openapi-spec": "node scripts/fetch-openapi-spec.mjs",
+    "generate": "pnpm fetch-openapi-spec && openapi-ts",
     "lint": "eslint .",
     "format": "prettier --write"
   },

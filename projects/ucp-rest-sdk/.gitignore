@@ -3,3 +3,4 @@ dist/
 .env
 *.log
 .openapi-deref.json
+openapi-spec/

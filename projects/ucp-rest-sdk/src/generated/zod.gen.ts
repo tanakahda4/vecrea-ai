@@ -604,6 +604,616 @@ export const zOrder = zOrderRoot;
 export type Order = z.infer<typeof zOrder>;
 
 /**
+ * Discount Extension
+ *
+ * Extends Checkout with discount code support, enabling agents to apply promotional, loyalty, referral, and other discount codes.
+ */
+export const zDiscountRoot = z.unknown();
+
+export type DiscountRoot = z.infer<typeof zDiscountRoot>;
+
+export const zDiscount = zDiscountRoot;
+
+export type Discount = z.infer<typeof zDiscount>;
+
+/**
+ * Breakdown of how a discount amount was allocated to a specific target.
+ */
+export const zAllocation = z.object({
+    path: z.string(),
+    amount: z.number().int().gte(0)
+});
+
+export type Allocation = z.infer<typeof zAllocation>;
+
+/**
+ * A discount that was successfully applied.
+ */
+export const zAppliedDiscount = z.object({
+    code: z.string().optional(),
+    title: z.string(),
+    amount: z.number().int().gte(0),
+    automatic: z.boolean().optional().default(false),
+    method: z.enum(['each', 'across']).optional(),
+    priority: z.number().int().gte(1).optional(),
+    allocations: z.array(zAllocation).optional()
+});
+
+export type AppliedDiscount = z.infer<typeof zAppliedDiscount>;
+
+/**
+ * Discount codes input and applied discounts output.
+ */
+export const zDiscountsObject = z.object({
+    codes: z.array(z.string()).optional(),
+    applied: z.array(zAppliedDiscount).readonly().optional()
+});
+
+export type DiscountsObject = z.infer<typeof zDiscountsObject>;
+
+/**
+ * Fulfillment Extension
+ *
+ * Extends Checkout with fulfillment support using methods, destinations, and groups.
+ */
+export const zFulfillmentRoot = z.unknown();
+
+export type FulfillmentRoot = z.infer<typeof zFulfillmentRoot>;
+
+export const zFulfillment = zFulfillmentRoot;
+
+export type Fulfillment = z.infer<typeof zFulfillment>;
+
+/**
+ * Business Fulfillment Config
+ *
+ * Business's fulfillment configuration.
+ */
+export const zBusinessFulfillmentConfigRoot = z.object({
+    allows_multi_destination: z.object({
+        shipping: z.boolean().optional(),
+        pickup: z.boolean().optional()
+    }).optional(),
+    allows_method_combinations: z.array(z.array(z.enum(['shipping', 'pickup']))).optional()
+});
+
+export type BusinessFulfillmentConfigRoot = z.infer<typeof zBusinessFulfillmentConfigRoot>;
+
+/**
+ * Buyer
+ */
+export const zBuyerRoot2 = z.object({
+    first_name: z.string().optional(),
+    last_name: z.string().optional(),
+    email: z.string().optional(),
+    phone_number: z.string().optional()
+});
+
+export type BuyerRoot2 = z.infer<typeof zBuyerRoot2>;
+
+/**
+ * Context
+ *
+ * Provisional buyer signals for relevance and localization: product availability, pricing, currency, tax, shipping, payment methods, and eligibility (e.g., student or affiliation discounts). Businesses SHOULD use these values when authoritative data (e.g., address) is absent, and MAY ignore unsupported values without returning errors. Context can be disclosed progressively—coarse signals early, finer resolution as the session progresses. Higher-resolution data (shipping address, billing address) supersedes context. Platforms SHOULD progressively enhance context throughout the buyer journey.
+ */
+export const zContextRoot2 = z.object({
+    address_country: z.string().optional(),
+    address_region: z.string().optional(),
+    postal_code: z.string().optional()
+});
+
+export type ContextRoot2 = z.infer<typeof zContextRoot2>;
+
+/**
+ * Fulfillment Available Method
+ *
+ * Inventory availability hint for a fulfillment method type.
+ */
+export const zFulfillmentAvailableMethodRoot = z.object({
+    type: z.enum(['shipping', 'pickup']),
+    line_item_ids: z.array(z.string()),
+    fulfillable_on: z.string().nullish(),
+    description: z.string().optional()
+});
+
+export type FulfillmentAvailableMethodRoot = z.infer<typeof zFulfillmentAvailableMethodRoot>;
+
+/**
+ * Item
+ */
+export const zItemRoot2 = z.object({
+    id: z.string(),
+    title: z.string(),
+    price: z.number().int().gte(0),
+    image_url: z.string().url().optional()
+});
+
+export type ItemRoot2 = z.infer<typeof zItemRoot2>;
+
+/**
+ * Link
+ */
+export const zLinkRoot2 = z.object({
+    type: z.string(),
+    url: z.string().url(),
+    title: z.string().optional()
+});
+
+export type LinkRoot2 = z.infer<typeof zLinkRoot2>;
+
+/**
+ * Message Error
+ */
+export const zMessageErrorRoot2 = z.object({
+    type: z.literal('error'),
+    code: z.string(),
+    path: z.string().optional(),
+    content_type: z.enum(['plain', 'markdown']).optional(),
+    content: z.string(),
+    severity: z.enum([
+        'recoverable',
+        'requires_buyer_input',
+        'requires_buyer_review'
+    ])
+});
+
+export type MessageErrorRoot2 = z.infer<typeof zMessageErrorRoot2>;
+
+/**
+ * Message Info
+ */
+export const zMessageInfoRoot2 = z.object({
+    type: z.literal('info'),
+    path: z.string().optional(),
+    code: z.string().optional(),
+    content_type: z.enum(['plain', 'markdown']).optional(),
+    content: z.string()
+});
+
+export type MessageInfoRoot2 = z.infer<typeof zMessageInfoRoot2>;
+
+/**
+ * Message Warning
+ */
+export const zMessageWarningRoot2 = z.object({
+    type: z.literal('warning'),
+    path: z.string().optional(),
+    code: z.string(),
+    content: z.string(),
+    content_type: z.enum(['plain', 'markdown']).optional()
+});
+
+export type MessageWarningRoot2 = z.infer<typeof zMessageWarningRoot2>;
+
+/**
+ * Message
+ *
+ * Container for error, warning, or info messages.
+ */
+export const zMessageRoot2 = z.union([
+    zMessageErrorRoot2,
+    zMessageWarningRoot2,
+    zMessageInfoRoot2
+]);
+
+export type MessageRoot2 = z.infer<typeof zMessageRoot2>;
+
+/**
+ * Order Confirmation
+ *
+ * Order details available at the time of checkout completion.
+ */
+export const zOrderConfirmationRoot2 = z.object({
+    id: z.string(),
+    permalink_url: z.string().url()
+});
+
+export type OrderConfirmationRoot2 = z.infer<typeof zOrderConfirmationRoot2>;
+
+/**
+ * Payment Credential
+ *
+ * The base definition for any payment credential. Handlers define specific credential types.
+ */
+export const zPaymentCredentialRoot2 = z.object({
+    type: z.string()
+});
+
+export type PaymentCredentialRoot2 = z.infer<typeof zPaymentCredentialRoot2>;
+
+/**
+ * Platform Fulfillment Config
+ *
+ * Platform's fulfillment configuration.
+ */
+export const zPlatformFulfillmentConfigRoot = z.object({
+    supports_multi_group: z.boolean().optional().default(false)
+});
+
+export type PlatformFulfillmentConfigRoot = z.infer<typeof zPlatformFulfillmentConfigRoot>;
+
+/**
+ * Postal Address
+ */
+export const zPostalAddressRoot2 = z.object({
+    extended_address: z.string().optional(),
+    street_address: z.string().optional(),
+    address_locality: z.string().optional(),
+    address_region: z.string().optional(),
+    address_country: z.string().optional(),
+    postal_code: z.string().optional(),
+    first_name: z.string().optional(),
+    last_name: z.string().optional(),
+    phone_number: z.string().optional()
+});
+
+export type PostalAddressRoot2 = z.infer<typeof zPostalAddressRoot2>;
+
+/**
+ * Payment Instrument
+ *
+ * The base definition for any payment instrument. It links the instrument to a specific payment handler.
+ */
+export const zPaymentInstrumentRoot2 = z.object({
+    id: z.string(),
+    handler_id: z.string(),
+    type: z.string(),
+    billing_address: zPostalAddressRoot2.optional(),
+    credential: zPaymentCredentialRoot2.optional(),
+    display: z.record(z.unknown()).optional()
+});
+
+export type PaymentInstrumentRoot2 = z.infer<typeof zPaymentInstrumentRoot2>;
+
+/**
+ * Selected Payment Instrument
+ *
+ * A payment instrument with selection state.
+ */
+export const zPaymentInstrumentSelectedPaymentInstrument = zPaymentInstrumentRoot2.and(z.object({
+    selected: z.boolean().optional()
+}));
+
+export type PaymentInstrumentSelectedPaymentInstrument = z.infer<typeof zPaymentInstrumentSelectedPaymentInstrument>;
+
+/**
+ * Payment
+ *
+ * Payment configuration containing handlers.
+ */
+export const zPaymentRoot2 = z.object({
+    instruments: z.array(zPaymentInstrumentSelectedPaymentInstrument).optional()
+});
+
+export type PaymentRoot2 = z.infer<typeof zPaymentRoot2>;
+
+/**
+ * Retail Location
+ *
+ * A pickup location (retail store, locker, etc.).
+ */
+export const zRetailLocationRoot = z.object({
+    id: z.string(),
+    name: z.string(),
+    address: zPostalAddressRoot2.optional()
+});
+
+export type RetailLocationRoot = z.infer<typeof zRetailLocationRoot>;
+
+/**
+ * Shipping Destination
+ *
+ * Shipping destination.
+ */
+export const zShippingDestinationRoot = zPostalAddressRoot2.and(z.object({
+    id: z.string()
+}));
+
+export type ShippingDestinationRoot = z.infer<typeof zShippingDestinationRoot>;
+
+/**
+ * Fulfillment Destination
+ *
+ * A destination for fulfillment.
+ */
+export const zFulfillmentDestinationRoot = z.union([
+    zShippingDestinationRoot,
+    zRetailLocationRoot
+]);
+
+export type FulfillmentDestinationRoot = z.infer<typeof zFulfillmentDestinationRoot>;
+
+/**
+ * Total
+ */
+export const zTotalRoot2 = z.object({
+    type: z.enum([
+        'items_discount',
+        'subtotal',
+        'discount',
+        'fulfillment',
+        'tax',
+        'fee',
+        'total'
+    ]),
+    display_text: z.string().optional(),
+    amount: z.number().int().gte(0)
+});
+
+export type TotalRoot2 = z.infer<typeof zTotalRoot2>;
+
+/**
+ * Fulfillment Option
+ *
+ * A fulfillment option within a group (e.g., Standard Shipping $5, Express $15).
+ */
+export const zFulfillmentOptionRoot = z.object({
+    id: z.string(),
+    title: z.string(),
+    description: z.string().optional(),
+    carrier: z.string().optional(),
+    earliest_fulfillment_time: z.string().datetime().optional(),
+    latest_fulfillment_time: z.string().datetime().optional(),
+    totals: z.array(zTotalRoot2)
+});
+
+export type FulfillmentOptionRoot = z.infer<typeof zFulfillmentOptionRoot>;
+
+/**
+ * Fulfillment Group
+ *
+ * A merchant-generated package/group of line items with fulfillment options.
+ */
+export const zFulfillmentGroupRoot = z.object({
+    id: z.string(),
+    line_item_ids: z.array(z.string()),
+    options: z.array(zFulfillmentOptionRoot).optional(),
+    selected_option_id: z.string().nullish()
+});
+
+export type FulfillmentGroupRoot = z.infer<typeof zFulfillmentGroupRoot>;
+
+/**
+ * Fulfillment Method
+ *
+ * A fulfillment method (shipping or pickup) with destinations and groups.
+ */
+export const zFulfillmentMethodRoot = z.object({
+    id: z.string(),
+    type: z.enum(['shipping', 'pickup']),
+    line_item_ids: z.array(z.string()),
+    destinations: z.array(zFulfillmentDestinationRoot).optional(),
+    selected_destination_id: z.string().nullish(),
+    groups: z.array(zFulfillmentGroupRoot).optional()
+});
+
+export type FulfillmentMethodRoot = z.infer<typeof zFulfillmentMethodRoot>;
+
+/**
+ * Fulfillment
+ *
+ * Container for fulfillment methods and availability.
+ */
+export const zFulfillmentRoot2 = z.object({
+    methods: z.array(zFulfillmentMethodRoot).optional(),
+    available_methods: z.array(zFulfillmentAvailableMethodRoot).optional()
+});
+
+export type FulfillmentRoot2 = z.infer<typeof zFulfillmentRoot2>;
+
+/**
+ * Line Item
+ *
+ * Line item object. Expected to use the currency of the parent object.
+ */
+export const zLineItemRoot2 = z.object({
+    id: z.string(),
+    item: zItemRoot2,
+    quantity: z.number().int().gte(1),
+    totals: z.array(zTotalRoot2),
+    parent_id: z.string().optional()
+});
+
+export type LineItemRoot2 = z.infer<typeof zLineItemRoot2>;
+
+/**
+ * Embedded Transport Config
+ *
+ * Per-checkout configuration for embedded transport binding. Allows businesses to vary ECP availability and delegations based on cart contents, agent authorization, or policy.
+ */
+export const zEmbeddedConfigRoot2 = z.object({
+    delegate: z.array(z.string()).optional()
+});
+
+export type EmbeddedConfigRoot2 = z.infer<typeof zEmbeddedConfigRoot2>;
+
+/**
+ * Reverse-domain identifier (e.g., com.google.pay, dev.ucp.shopping.checkout)
+ */
+export const zUcpReverseDomainName = z.string().regex(/^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9_]*)+$/);
+
+export type UcpReverseDomainName = z.infer<typeof zUcpReverseDomainName>;
+
+/**
+ * UCP version in YYYY-MM-DD format.
+ */
+export const zUcpVersion = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+
+export type UcpVersion = z.infer<typeof zUcpVersion>;
+
+/**
+ * Shared foundation for all UCP entities.
+ */
+export const zUcpEntity = z.object({
+    version: zUcpVersion,
+    spec: z.string().url().optional(),
+    schema: z.string().url().optional(),
+    id: z.string().optional(),
+    config: z.record(z.unknown()).optional()
+});
+
+export type UcpEntity = z.infer<typeof zUcpEntity>;
+
+export const zCapabilityBase = zUcpEntity.and(z.object({
+    extends: z.string().regex(/^[a-z][a-z0-9]*(?:\.[a-z][a-z0-9_]*)+$/).optional()
+}));
+
+export type CapabilityBase = z.infer<typeof zCapabilityBase>;
+
+/**
+ * Capability (Business Schema)
+ *
+ * Capability configuration for business/merchant level. May include business-specific config overrides.
+ */
+export const zCapabilityBusinessSchema = zCapabilityBase;
+
+export type CapabilityBusinessSchema = z.infer<typeof zCapabilityBusinessSchema>;
+
+/**
+ * Capability (Platform Schema)
+ *
+ * Full capability declaration for platform-level discovery. Includes spec/schema URLs for agent fetching.
+ */
+export const zCapabilityPlatformSchema = zCapabilityBase.and(z.unknown());
+
+export type CapabilityPlatformSchema = z.infer<typeof zCapabilityPlatformSchema>;
+
+/**
+ * Capability (Response Schema)
+ *
+ * Capability reference in responses. Only name/version required to confirm active capabilities.
+ */
+export const zCapabilityResponseSchema = zCapabilityBase;
+
+export type CapabilityResponseSchema = z.infer<typeof zCapabilityResponseSchema>;
+
+export const zPaymentHandlerBase2 = zUcpEntity.and(z.record(z.unknown()));
+
+export type PaymentHandlerBase2 = z.infer<typeof zPaymentHandlerBase2>;
+
+/**
+ * Payment Handler (Response Schema)
+ *
+ * Handler reference in responses. May include full config state for runtime usage of the handler.
+ */
+export const zPaymentHandlerResponseSchema2 = zPaymentHandlerBase2;
+
+export type PaymentHandlerResponseSchema2 = z.infer<typeof zPaymentHandlerResponseSchema2>;
+
+export const zServiceBase2 = zUcpEntity.and(z.object({
+    transport: z.enum([
+        'rest',
+        'mcp',
+        'a2a',
+        'embedded'
+    ]),
+    endpoint: z.string().url().optional()
+}));
+
+export type ServiceBase2 = z.infer<typeof zServiceBase2>;
+
+/**
+ * Service (Response Schema)
+ *
+ * Service binding in API responses. Includes per-resource transport configuration via typed config.
+ */
+export const zServiceResponseSchema2 = zServiceBase2.and(z.union([
+    z.object({
+        transport: z.literal('rest').optional()
+    }),
+    z.object({
+        transport: z.literal('mcp').optional()
+    }),
+    z.object({
+        transport: z.literal('a2a').optional()
+    }),
+    z.object({
+        transport: z.literal('embedded').optional(),
+        config: zEmbeddedConfigRoot2.optional()
+    })
+]));
+
+export type ServiceResponseSchema2 = z.infer<typeof zServiceResponseSchema2>;
+
+/**
+ * Base UCP metadata with shared properties for all schema types.
+ */
+export const zUcpBase2 = z.object({
+    version: zUcpVersion,
+    services: z.record(z.array(zServiceBase2)).optional(),
+    capabilities: z.record(z.array(zCapabilityBase)).optional(),
+    payment_handlers: z.record(z.array(zPaymentHandlerBase2)).optional()
+});
+
+export type UcpBase2 = z.infer<typeof zUcpBase2>;
+
+/**
+ * UCP Checkout Response Schema
+ *
+ * UCP metadata for checkout responses.
+ */
+export const zUcpResponseCheckoutSchema = zUcpBase2.and(z.object({
+    services: z.unknown().optional(),
+    capabilities: z.unknown().optional(),
+    payment_handlers: z.unknown()
+}));
+
+export type UcpResponseCheckoutSchema = z.infer<typeof zUcpResponseCheckoutSchema>;
+
+/**
+ * Checkout
+ *
+ * Base checkout schema. Extensions compose onto this using allOf.
+ */
+export const zCheckoutRoot = z.object({
+    ucp: zUcpResponseCheckoutSchema,
+    id: z.string(),
+    line_items: z.array(zLineItemRoot2),
+    buyer: zBuyerRoot2.optional(),
+    context: zContextRoot2.optional(),
+    status: z.enum([
+        'incomplete',
+        'requires_escalation',
+        'ready_for_complete',
+        'complete_in_progress',
+        'completed',
+        'canceled'
+    ]),
+    currency: z.string(),
+    totals: z.array(zTotalRoot2),
+    messages: z.array(zMessageRoot2).optional(),
+    links: z.array(zLinkRoot2),
+    expires_at: z.string().datetime().optional(),
+    continue_url: z.string().url().optional(),
+    payment: zPaymentRoot2.optional(),
+    order: zOrderConfirmationRoot2.optional()
+});
+
+export type CheckoutRoot = z.infer<typeof zCheckoutRoot>;
+
+/**
+ * Discount Extension
+ *
+ * Extends Checkout with discount code support, enabling agents to apply promotional, loyalty, referral, and other discount codes.
+ */
+export const zDiscountRootWritable = z.unknown();
+
+export type DiscountRootWritable = z.infer<typeof zDiscountRootWritable>;
+
+export const zDiscountWritable = zDiscountRootWritable;
+
+export type DiscountWritable = z.infer<typeof zDiscountWritable>;
+
+/**
+ * Discount codes input and applied discounts output.
+ */
+export const zDiscountsObjectWritable = z.object({
+    codes: z.array(z.string()).optional()
+});
+
+export type DiscountsObjectWritable = z.infer<typeof zDiscountsObjectWritable>;
+
+/**
  * The unique identifier of the checkout session.
  */
 export const zCheckoutSessionIdPath = z.string();
