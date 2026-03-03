@@ -63,3 +63,6 @@ htmlcov/
 *.tmp
 *.temp
 .cache/
+
+# DynamoDB local data
+data/

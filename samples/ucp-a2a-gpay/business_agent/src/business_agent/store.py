@@ -17,6 +17,7 @@
 from decimal import Decimal
 import json
 import os
+import boto3
 from uuid import uuid4
 from pydantic import AnyUrl
 from ucp_sdk.models.schemas.shopping.checkout_resp import CheckoutResponse as Checkout
@@ -41,6 +42,11 @@ from .models.product_types import ImageObject, Product, ProductResults
 
 default_currency = "USD"
 
+DYNAMODB_ENDPOINT = "http://localhost:8000"
+DYNAMODB_REGION = "ap-northeast-1"
+PRODUCTS_TABLE_NAME = "Products"
+
+
 class RetailStore:
   """Mock Retail Store for demo purposes.
 
@@ -62,16 +68,36 @@ class RetailStore:
     ) as f:
       self._ucp_metadata = json.load(f)
 
+  # def _initialize_products(self):
+  #   """Loads products from a JSON file and stores them for lookup by ProductID."""
+  #   with open(
+  #       os.path.join(os.path.dirname(__file__), "data/products.json"), "r"
+  #   ) as f:
+  #     products_data = json.load(f)
+  #     for product_data in products_data:
+  #       # we only have products in the json file
+  #       product = Product.model_validate(product_data)
+  #       self._products[product.product_id] = product
+
   def _initialize_products(self):
-    """Loads products from a JSON file and stores them for lookup by ProductID."""
-    with open(
-        os.path.join(os.path.dirname(__file__), "data/products.json"), "r"
-    ) as f:
-      products_data = json.load(f)
-      for product_data in products_data:
-        # we only have products in the json file
-        product = Product.model_validate(product_data)
-        self._products[product.product_id] = product
+    """Loads products from DynamoDB and stores them for lookup by ProductID."""
+    dynamodb = boto3.resource(
+        "dynamodb",
+        region_name=DYNAMODB_REGION,
+        endpoint_url=DYNAMODB_ENDPOINT,
+        # aws_access_key_id="dummy",        # Local 用のダミー
+        # aws_secret_access_key="dummy",    # Local 用のダミー
+    )
+    table = dynamodb.Table(PRODUCTS_TABLE_NAME)
+
+    # 全件読み込み（件数が多くなるなら query + index など検討）
+    response = table.scan()
+    items = response.get("Items", [])
+
+    for product_data in items:
+      # products.json と同じ構造で入れている前提なので、そのまま Pydantic に渡せる
+      product = Product.model_validate(product_data)
+      self._products[product.product_id] = product
 
   def search_products(self, query: str) -> ProductResults:
     """Searches the product catalog for products that match the given queries.
